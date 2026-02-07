@@ -1,0 +1,81 @@
+<header
+  class="fixed top-0 right-0 left-0 z-30 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4 transition-all duration-300"
+  [class.lg:pl-64]="!themeService.sidebarCollapsed()"
+  [class.lg:pl-20]="themeService.sidebarCollapsed()"
+>
+  <!-- Left: Hamburger + Breadcrumbs -->
+  <div class="flex items-center gap-3">
+    <button
+      (click)="onMenuClick()"
+      class="p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <!-- Breadcrumbs (hidden on mobile) -->
+    <nav class="hidden md:flex items-center gap-1 text-sm">
+      @for (crumb of breadcrumbs(); track crumb.url) {
+        @if (!crumb.isLast) {
+          <a
+            [routerLink]="crumb.url"
+            class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          >
+            {{ crumb.label }}
+          </a>
+          <span class="text-gray-400 dark:text-gray-500">/</span>
+        } @else {
+          <span class="text-gray-900 dark:text-white font-medium">{{ crumb.label }}</span>
+        }
+      }
+    </nav>
+  </div>
+
+  <!-- Center: Extensible slot -->
+  <div class="flex-1"></div>
+
+  <!-- Right: User Dropdown -->
+  <div class="relative">
+    <button
+      (click)="toggleDropdown()"
+      class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+    >
+      <div
+        class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium"
+      >
+        {{ userInitial }}
+      </div>
+    </button>
+
+    <!-- Dropdown Menu -->
+    @if (dropdownOpen()) {
+      <div
+        class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50"
+      >
+        <a
+          routerLink="/profile"
+          (click)="dropdownOpen.set(false)"
+          class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <mat-icon class="text-lg">person</mat-icon>
+          Profile
+        </a>
+        <a
+          routerLink="/settings"
+          (click)="dropdownOpen.set(false)"
+          class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <mat-icon class="text-lg">settings</mat-icon>
+          Settings
+        </a>
+        <hr class="my-1 border-gray-200 dark:border-gray-700" />
+        <button
+          (click)="logout()"
+          class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <mat-icon class="text-lg">logout</mat-icon>
+          Logout
+        </button>
+      </div>
+    }
+  </div>
+</header>

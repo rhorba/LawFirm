@@ -1,0 +1,159 @@
+<h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Profile</h1>
+
+@if (authService.currentUser(); as user) {
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Left Column: User Card -->
+    <div class="lg:col-span-1">
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <div class="flex flex-col items-center">
+          <div
+            class="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-4xl font-bold mb-4"
+          >
+            {{ userInitial }}
+          </div>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {{ user.username }}
+          </h2>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">{{ user.email }}</p>
+          <div class="flex flex-wrap justify-center gap-2 mb-4">
+            @for (role of user.roles; track role.id) {
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
+              >
+                {{ role.name }}
+              </span>
+            }
+          </div>
+          <div class="w-full border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-500 dark:text-gray-400">Status</span>
+              @if (user.enabled) {
+                <span class="text-green-600 dark:text-green-400 font-medium">Active</span>
+              } @else {
+                <span class="text-yellow-600 dark:text-yellow-400 font-medium">Inactive</span>
+              }
+            </div>
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-500 dark:text-gray-400">Member Since</span>
+              <span class="text-gray-900 dark:text-white">{{
+                user.createdAt | date: 'mediumDate'
+              }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Extended Profile -->
+    <div class="lg:col-span-2">
+      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Personal Details</h3>
+          <button
+            (click)="toggleEdit()"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {{ isEditing() ? 'Cancel' : profile() ? 'Edit Profile' : 'Create Profile' }}
+          </button>
+        </div>
+
+        @if (isLoading()) {
+          <div class="flex justify-center p-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        } @else if (isEditing()) {
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >First Name</label
+                >
+                <input
+                  type="text"
+                  formControlName="firstName"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >Last Name</label
+                >
+                <input
+                  type="text"
+                  formControlName="lastName"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >Phone Number</label
+                >
+                <input
+                  type="text"
+                  formControlName="phoneNumber"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >Bio</label
+              >
+              <textarea
+                formControlName="bio"
+                rows="4"
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              ></textarea>
+            </div>
+            <div class="flex justify-end">
+              <button
+                type="submit"
+                [disabled]="profileForm.invalid || isLoading()"
+                class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        } @else if (profile()) {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">First Name</p>
+              <p class="text-gray-900 dark:text-white font-medium">
+                {{ profile()?.firstName || '-' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Last Name</p>
+              <p class="text-gray-900 dark:text-white font-medium">
+                {{ profile()?.lastName || '-' }}
+              </p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+              <p class="text-gray-900 dark:text-white font-medium">
+                {{ profile()?.phoneNumber || '-' }}
+              </p>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Bio</p>
+            <p class="text-gray-900 dark:text-white whitespace-pre-line">
+              {{ profile()?.bio || 'No bio provided.' }}
+            </p>
+          </div>
+        } @else {
+          <div class="text-center py-8">
+            <p class="text-gray-500 dark:text-gray-400 mb-4">Your profile is incomplete.</p>
+            <button
+              (click)="toggleEdit()"
+              class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50"
+            >
+              Complete Profile
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

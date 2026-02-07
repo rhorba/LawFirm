@@ -1,0 +1,13 @@
+<app-header />
+<app-sidebar />
+
+<!-- Main Content -->
+<main
+  class="pt-16 min-h-screen transition-all duration-300 bg-gray-50 dark:bg-gray-900"
+  [class.lg:ml-64]="!themeService.sidebarCollapsed()"
+  [class.lg:ml-20]="themeService.sidebarCollapsed()"
+>
+  <div class="p-6">
+    <router-outlet />
+  </div>
+</main>

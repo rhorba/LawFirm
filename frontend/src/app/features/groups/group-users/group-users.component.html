@@ -1,0 +1,107 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex items-center mb-6">
+    <button (click)="goBack()" class="mr-4 text-blue-600 hover:text-blue-800">
+      ← Back to Groups
+    </button>
+    <h1 class="text-3xl font-bold" *ngIf="group">{{ group.name }} - Users</h1>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-8">
+    <p class="text-gray-600">Loading...</p>
+  </div>
+
+  <div *ngIf="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && group" class="bg-white shadow-md rounded">
+    <div class="p-4 border-b flex justify-between items-center">
+      <h2 class="text-xl font-semibold">Group Members ({{ group.userCount }})</h2>
+      <button
+        (click)="openAddUsersModal()"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+      >
+        Add Users
+      </button>
+    </div>
+
+    <table class="min-w-full" *ngIf="group.users && group.users.length > 0">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Username</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let user of group.users" class="hover:bg-gray-50">
+          <td class="px-6 py-4 whitespace-nowrap">{{ user.username }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">{{ user.email }}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <button
+              (click)="removeUser(user.id, user.username)"
+              class="text-red-600 hover:text-red-800"
+            >
+              Remove
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!group.users || group.users.length === 0" class="text-center py-8 text-gray-500">
+      No users in this group. Add users to get started.
+    </div>
+  </div>
+
+  <!-- Add Users Modal -->
+  <div
+    *ngIf="showAddUsersModal"
+    class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+  >
+    <div
+      class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-bold">Add Users to Group</h3>
+        <button (click)="closeAddUsersModal()" class="text-gray-600 hover:text-gray-900">✕</button>
+      </div>
+
+      <div class="max-h-96 overflow-y-auto">
+        <div *ngFor="let user of availableUsers" class="flex items-center py-2 border-b">
+          <input
+            type="checkbox"
+            [id]="'user-' + user.id"
+            [checked]="isUserSelected(user.id)"
+            (change)="toggleUserSelection(user.id)"
+            class="mr-3"
+          />
+          <label [for]="'user-' + user.id" class="cursor-pointer flex-1">
+            <span class="font-medium">{{ user.username }}</span>
+            <span class="text-gray-500 text-sm ml-2">{{ user.email }}</span>
+          </label>
+        </div>
+
+        <div *ngIf="availableUsers.length === 0" class="text-center py-8 text-gray-500">
+          All users are already in this group.
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-4 mt-4">
+        <button
+          (click)="closeAddUsersModal()"
+          class="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="addUsers()"
+          [disabled]="selectedUserIds.length === 0"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
+        >
+          Add Selected ({{ selectedUserIds.length }})
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

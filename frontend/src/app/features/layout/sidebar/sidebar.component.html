@@ -1,0 +1,71 @@
+<!-- Mobile Backdrop -->
+@if (themeService.mobileSidebarOpen()) {
+  <div
+    class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+    (click)="themeService.closeMobileSidebar()"
+  ></div>
+}
+
+<!-- Sidebar -->
+<aside
+  class="fixed inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 pt-16 transition-all duration-300"
+  [class.w-64]="!themeService.sidebarCollapsed()"
+  [class.w-20]="themeService.sidebarCollapsed()"
+  [class.-translate-x-full]="!themeService.mobileSidebarOpen()"
+  [class.translate-x-0]="themeService.mobileSidebarOpen()"
+  [class.lg:translate-x-0]="true"
+>
+  <!-- Navigation -->
+  <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+    @for (item of navItems; track item.route) {
+      @if (!item.permission || authService.hasPermission(item.permission)) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+          (click)="onNavClick()"
+          class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          [class.justify-center]="themeService.sidebarCollapsed()"
+        >
+          <mat-icon class="flex-shrink-0">{{ item.icon }}</mat-icon>
+          @if (!themeService.sidebarCollapsed()) {
+            <span class="text-sm font-medium">{{ item.label }}</span>
+          }
+        </a>
+      }
+    }
+  </nav>
+
+  <!-- Collapse Toggle (desktop only) -->
+  <div class="hidden lg:block px-3 py-2 border-t border-gray-200 dark:border-gray-700">
+    <button
+      (click)="themeService.toggleSidebar()"
+      class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      [class.justify-center]="themeService.sidebarCollapsed()"
+    >
+      <mat-icon>{{ themeService.sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      @if (!themeService.sidebarCollapsed()) {
+        <span class="text-sm">Collapse</span>
+      }
+    </button>
+  </div>
+
+  <!-- User Footer -->
+  <div class="px-3 py-3 border-t border-gray-200 dark:border-gray-700">
+    <div
+      class="flex items-center gap-3 px-3 py-2"
+      [class.justify-center]="themeService.sidebarCollapsed()"
+    >
+      <div
+        class="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium"
+      >
+        {{ userInitial }}
+      </div>
+      @if (!themeService.sidebarCollapsed()) {
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">{{
+          username
+        }}</span>
+      }
+    </div>
+  </div>
+</aside>
