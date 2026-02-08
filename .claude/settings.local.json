@@ -19,7 +19,15 @@
       "Bash(mvn clean test:*)",
       "Bash(pnpm run build:*)",
       "Bash(mvn clean verify:*)",
-      "Bash(pnpm lint:fix:*)"
+      "Bash(pnpm lint:fix:*)",
+      "Bash(timeout 30 mvn spring-boot:run:*)",
+      "Bash(timeout 60 mvn spring-boot:run:*)",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(findstr:*)",
+      "Bash(tee:*)",
+      "Bash(grep:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }

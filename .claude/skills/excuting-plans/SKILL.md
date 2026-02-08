@@ -23,15 +23,15 @@ Load the plan, review it critically for full-stack consistency, execute tasks in
 ### Step 2: Execute Batch
 **Default: Execute the first 3 tasks.**
 For each task:
-1. Mark as `in_progress`.
+1. Mark as `in_progress`and write it in the implementation plan provided.
 2. **Backend Standards:** Ensure Lombok and MapStruct annotations are correctly applied; verify Spring Boot 3.4 patterns.
 3. **Frontend Standards:** Follow framework-specific patterns (React Hooks or Angular Observables) and ensure Tailwind classes are used for styling.
 4. **Verification:** Follow every bite-sized step exactly and run verifications as specified in the plan.
-5. Mark as `completed`.
+5. Mark as `completed`and write it in the implementation plan provided.
 
 ### Step 3: Report & Verify
 When the batch is complete:
-- **Status Report:** Show exactly what was implemented.
+- **Status Report:** Show exactly what was implemented and write it in the implementation plan provided.
 - **Verification Output:** Show Java compilation status and Frontend build/lint status.
 - **Synchronization Check:** Confirm: "Backend and Frontend are in sync. Ready for feedback or the next batch?"
 
@@ -48,6 +48,7 @@ When the batch is complete:
 - **Ambiguity:** You hit a missing dependency or an instruction you do not understand. **Do not guess.**
 
 ## Remember
+- **execution progress status:**in each completed batch update the execution progress status in implementation plan provided.
 - **Follow exactly:** Do not skip steps or verifications.
 - **Batch focus:** Only do 3 tasks at a time unless otherwise directed.
 - **Sync first:** Never leave the frontend and backend in a broken state between batches.
