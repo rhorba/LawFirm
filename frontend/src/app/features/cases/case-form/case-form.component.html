@@ -1,0 +1,263 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <button
+        (click)="onCancel()"
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        title="Cancel"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        @if (isEditMode()) {
+          Edit Case: {{ caseData()?.fullCaseNumber }}
+        } @else {
+          New Case
+        }
+      </h1>
+    </div>
+    <p class="text-sm text-gray-600 dark:text-gray-400 ml-9">
+      @if (isEditMode()) {
+        Modify case information
+      } @else {
+        Create a new legal case
+      }
+    </p>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-6">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Form -->
+  <form [formGroup]="caseForm" (ngSubmit)="onSubmit()">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-6">
+      <!-- Case Identification Section -->
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Case Identification</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Case Type -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="caseTypeCode">
+              Case Type <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="caseTypeCode"
+              formControlName="caseTypeCode"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+              [class.border-red-500]="caseForm.get('caseTypeCode')?.invalid && caseForm.get('caseTypeCode')?.touched"
+            >
+              <option value="">Select case type</option>
+              @for (type of refDataService.caseTypes(); track type.code) {
+                <option [value]="type.code">{{ type.nameFr }}</option>
+              }
+            </select>
+            @if (caseForm.get('caseTypeCode')?.invalid && caseForm.get('caseTypeCode')?.touched) {
+              <p class="text-red-500 text-xs italic mt-1">Case type is required</p>
+            }
+          </div>
+
+          <!-- Case Category -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="caseCategoryCode">
+              Category
+            </label>
+            <select
+              id="caseCategoryCode"
+              formControlName="caseCategoryCode"
+              [disabled]="!caseForm.get('caseTypeCode')?.value"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="">Select category</option>
+              @for (category of caseCategories(); track category.code) {
+                <option [value]="category.code">{{ category.nameFr }}</option>
+              }
+            </select>
+            @if (!caseForm.get('caseTypeCode')?.value) {
+              <p class="text-gray-500 dark:text-gray-400 text-xs italic mt-1">Select a case type first</p>
+            }
+          </div>
+
+          <!-- Tribunal -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="tribunalCode">
+              Tribunal <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="tribunalCode"
+              formControlName="tribunalCode"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+              [class.border-red-500]="caseForm.get('tribunalCode')?.invalid && caseForm.get('tribunalCode')?.touched"
+            >
+              <option value="">Select tribunal</option>
+              @for (tribunal of refDataService.tribunals(); track tribunal.code) {
+                <option [value]="tribunal.code">{{ tribunal.nameFr }}</option>
+              }
+            </select>
+            @if (caseForm.get('tribunalCode')?.invalid && caseForm.get('tribunalCode')?.touched) {
+              <p class="text-red-500 text-xs italic mt-1">Tribunal is required</p>
+            }
+          </div>
+
+          <!-- Lawyer -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="lawyerId">
+              Lawyer <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="lawyerId"
+              formControlName="lawyerId"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+              [class.border-red-500]="caseForm.get('lawyerId')?.invalid && caseForm.get('lawyerId')?.touched"
+            >
+              <option [value]="null">Select lawyer</option>
+              @for (lawyer of lawyers(); track lawyer.id) {
+                <option [value]="lawyer.id">{{ lawyer.fullName }}</option>
+              }
+            </select>
+            @if (caseForm.get('lawyerId')?.invalid && caseForm.get('lawyerId')?.touched) {
+              <p class="text-red-500 text-xs italic mt-1">Lawyer is required</p>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Registration Section -->
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Registration</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Registration Date -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="registrationDate">
+              Registration Date <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="registrationDate"
+              type="date"
+              formControlName="registrationDate"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+              [class.border-red-500]="caseForm.get('registrationDate')?.invalid && caseForm.get('registrationDate')?.touched"
+            />
+            @if (caseForm.get('registrationDate')?.invalid && caseForm.get('registrationDate')?.touched) {
+              <p class="text-red-500 text-xs italic mt-1">Registration date is required</p>
+            }
+          </div>
+
+          <!-- Initial Status (Create Mode Only) -->
+          @if (!isEditMode()) {
+            <div>
+              <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="initialStatusCode">
+                Initial Status
+              </label>
+              <select
+                id="initialStatusCode"
+                formControlName="initialStatusCode"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+              >
+                <option value="">Default (DRAFT)</option>
+                @for (status of refDataService.statuses(); track status.code) {
+                  <option [value]="status.code">{{ status.nameFr }}</option>
+                }
+              </select>
+              <p class="text-gray-500 dark:text-gray-400 text-xs italic mt-1">Leave blank for DRAFT status</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Description Section -->
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Description</h2>
+        <div class="space-y-4">
+          <!-- Case Description -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="caseDescription">
+              Case Description <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="caseDescription"
+              formControlName="caseDescription"
+              rows="4"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline resize-none"
+              [class.border-red-500]="caseForm.get('caseDescription')?.invalid && caseForm.get('caseDescription')?.touched"
+              placeholder="Enter a brief description of the case..."
+            ></textarea>
+            @if (caseForm.get('caseDescription')?.invalid && caseForm.get('caseDescription')?.touched) {
+              <p class="text-red-500 text-xs italic mt-1">
+                @if (caseForm.get('caseDescription')?.hasError('required')) {
+                  Case description is required
+                }
+                @if (caseForm.get('caseDescription')?.hasError('maxlength')) {
+                  Case description must be less than 500 characters
+                }
+              </p>
+            }
+          </div>
+
+          <!-- Matter Description -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="matterDescription">
+              Matter Description
+            </label>
+            <textarea
+              id="matterDescription"
+              formControlName="matterDescription"
+              rows="4"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline resize-none"
+              [class.border-red-500]="caseForm.get('matterDescription')?.invalid && caseForm.get('matterDescription')?.touched"
+              placeholder="Enter detailed matter description (optional)..."
+            ></textarea>
+            @if (caseForm.get('matterDescription')?.invalid && caseForm.get('matterDescription')?.touched) {
+              <p class="text-red-500 text-xs italic mt-1">
+                @if (caseForm.get('matterDescription')?.hasError('maxlength')) {
+                  Matter description must be less than 1000 characters
+                }
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="mt-6 flex items-center justify-end gap-3">
+      <button
+        type="button"
+        (click)="onCancel()"
+        [disabled]="loading()"
+        class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        [disabled]="loading() || caseForm.invalid"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
+      >
+        @if (loading()) {
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          @if (isEditMode()) {
+            Updating...
+          } @else {
+            Creating...
+          }
+        } @else {
+          @if (isEditMode()) {
+            Update Case
+          } @else {
+            Create Case
+          }
+        }
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,111 @@
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-gray-600 dark:bg-gray-900 bg-opacity-50 dark:bg-opacity-75 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+  <!-- Modal Container -->
+  <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+      <div>
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Change Case Status</h3>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ case.fullCaseNumber }}</p>
+      </div>
+      <button
+        (click)="onCancel()"
+        class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="statusForm" (ngSubmit)="onSubmit()">
+      <div class="p-6 space-y-4">
+        <!-- Error Message -->
+        @if (error()) {
+          <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded">
+            {{ error() }}
+          </div>
+        }
+
+        <!-- Current Status -->
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded">
+          <p class="text-sm text-gray-600 dark:text-gray-400">Current Status</p>
+          <p class="mt-1 text-base font-semibold text-gray-900 dark:text-white">{{ case.status.nameFr }}</p>
+        </div>
+
+        <!-- New Status Selection -->
+        <div>
+          <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="newStatusCode">
+            New Status <span class="text-red-500">*</span>
+          </label>
+          <select
+            id="newStatusCode"
+            formControlName="newStatusCode"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+            [class.border-red-500]="statusForm.get('newStatusCode')?.invalid && statusForm.get('newStatusCode')?.touched"
+          >
+            <option value="">Select new status</option>
+            @for (status of availableStatuses(); track status.code) {
+              <option [value]="status.code">{{ status.nameFr }}</option>
+            }
+          </select>
+          @if (statusForm.get('newStatusCode')?.invalid && statusForm.get('newStatusCode')?.touched) {
+            <p class="text-red-500 text-xs italic mt-1">
+              Please select a new status
+            </p>
+          }
+        </div>
+
+        <!-- Reason (Optional) -->
+        <div>
+          <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="reason">
+            Reason (Optional)
+          </label>
+          <textarea
+            id="reason"
+            formControlName="reason"
+            rows="4"
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline resize-none"
+            [class.border-red-500]="statusForm.get('reason')?.invalid && statusForm.get('reason')?.touched"
+            placeholder="Enter reason for status change..."
+          ></textarea>
+          @if (statusForm.get('reason')?.invalid && statusForm.get('reason')?.touched) {
+            <p class="text-red-500 text-xs italic mt-1">
+              @if (statusForm.get('reason')?.hasError('maxlength')) {
+                Reason must be less than 500 characters
+              }
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+        <button
+          type="button"
+          (click)="onCancel()"
+          [disabled]="loading()"
+          class="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="loading() || statusForm.invalid"
+          class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
+        >
+          @if (loading()) {
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Changing...
+          } @else {
+            Change Status
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

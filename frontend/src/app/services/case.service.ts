@@ -2,7 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CaseResponse, CaseSummary, CaseSearchParams, PageResponse } from '../core/models/case.model';
+import {
+  CaseResponse,
+  CaseSummary,
+  CaseSearchParams,
+  PageResponse,
+  CreateCaseRequest,
+  UpdateCaseRequest,
+  ChangeStatusRequest,
+} from '../core/models/case.model';
 
 @Injectable({ providedIn: 'root' })
 export class CaseService {
@@ -46,6 +54,18 @@ export class CaseService {
 
   getCaseById(id: number): Observable<CaseResponse> {
     return this.http.get<CaseResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  createCase(request: CreateCaseRequest): Observable<CaseResponse> {
+    return this.http.post<CaseResponse>(this.apiUrl, request);
+  }
+
+  updateCase(id: number, request: UpdateCaseRequest): Observable<CaseResponse> {
+    return this.http.put<CaseResponse>(`${this.apiUrl}/${id}`, request);
+  }
+
+  changeStatus(id: number, request: ChangeStatusRequest): Observable<CaseResponse> {
+    return this.http.patch<CaseResponse>(`${this.apiUrl}/${id}/status`, request);
   }
 
   deleteCase(id: number): Observable<void> {

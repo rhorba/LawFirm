@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CaseStatusResponse } from '../core/models/case.model';
@@ -15,5 +15,10 @@ export class CaseStatusService {
 
   getByCode(code: string): Observable<CaseStatusResponse> {
     return this.http.get<CaseStatusResponse>(`${this.apiUrl}/${code}`);
+  }
+
+  getStatusesForCaseType(caseTypeCode: string): Observable<CaseStatusResponse[]> {
+    const params = new HttpParams().set('caseTypeCode', caseTypeCode);
+    return this.http.get<CaseStatusResponse[]>(this.apiUrl, { params });
   }
 }

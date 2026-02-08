@@ -93,4 +93,32 @@ export interface PageResponse<T> {
   totalPages: number;
   size: number;
   number: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface CreateCaseRequest {
+  caseTypeCode: string;
+  caseCategoryCode?: string;
+  tribunalCode: string;
+  lawyerId: number;
+  registrationDate: string;
+  caseDescription: string;
+  matterDescription?: string;
+  initialStatusCode?: string;
+}
+
+export interface UpdateCaseRequest {
+  caseTypeCode: string;
+  caseCategoryCode?: string;
+  tribunalCode: string;
+  lawyerId: number;
+  registrationDate: string;
+  caseDescription: string;
+  matterDescription?: string;
+}
+
+export interface ChangeStatusRequest {
+  newStatusCode: string;
+  reason?: string;
 }

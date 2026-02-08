@@ -31,6 +31,27 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'cases/new',
+        loadComponent: () =>
+          import('./features/cases/case-form/case-form.component').then(
+            (m) => m.CaseFormComponent
+          ),
+      },
+      {
+        path: 'cases/:id',
+        loadComponent: () =>
+          import('./features/cases/case-detail/case-detail.component').then(
+            (m) => m.CaseDetailComponent
+          ),
+      },
+      {
+        path: 'cases/:id/edit',
+        loadComponent: () =>
+          import('./features/cases/case-form/case-form.component').then(
+            (m) => m.CaseFormComponent
+          ),
+      },
+      {
         path: 'lawyers',
         loadComponent: () =>
           import('./features/lawyers/lawyer-list/lawyer-list.component').then(
