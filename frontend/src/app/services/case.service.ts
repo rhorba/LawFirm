@@ -1,0 +1,54 @@
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { CaseResponse, CaseSummary, CaseSearchParams, PageResponse } from '../core/models/case.model';
+
+@Injectable({ providedIn: 'root' })
+export class CaseService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/cases`;
+
+  searchCases(params: CaseSearchParams): Observable<PageResponse<CaseSummary>> {
+    let httpParams = new HttpParams()
+      .set('page', (params.page ?? 0).toString())
+      .set('size', (params.size ?? 20).toString())
+      .set('sortBy', params.sortBy ?? 'registrationDate')
+      .set('sortDirection', params.sortDirection ?? 'DESC');
+
+    if (params.year !== undefined && params.year !== null) {
+      httpParams = httpParams.set('year', params.year.toString());
+    }
+    if (params.caseTypeCode) {
+      httpParams = httpParams.set('caseTypeCode', params.caseTypeCode);
+    }
+    if (params.categoryCode) {
+      httpParams = httpParams.set('categoryCode', params.categoryCode);
+    }
+    if (params.tribunalCode) {
+      httpParams = httpParams.set('tribunalCode', params.tribunalCode);
+    }
+    if (params.lawyerId !== undefined && params.lawyerId !== null) {
+      httpParams = httpParams.set('lawyerId', params.lawyerId.toString());
+    }
+    if (params.statusCode) {
+      httpParams = httpParams.set('statusCode', params.statusCode);
+    }
+    if (params.dateFrom) {
+      httpParams = httpParams.set('registrationDateFrom', params.dateFrom);
+    }
+    if (params.dateTo) {
+      httpParams = httpParams.set('registrationDateTo', params.dateTo);
+    }
+
+    return this.http.get<PageResponse<CaseSummary>>(this.apiUrl, { params: httpParams });
+  }
+
+  getCaseById(id: number): Observable<CaseResponse> {
+    return this.http.get<CaseResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  deleteCase(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}

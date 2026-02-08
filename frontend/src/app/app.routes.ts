@@ -24,6 +24,20 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
+        path: 'cases',
+        loadComponent: () =>
+          import('./features/cases/case-list/case-list.component').then(
+            (m) => m.CaseListComponent
+          ),
+      },
+      {
+        path: 'lawyers',
+        loadComponent: () =>
+          import('./features/lawyers/lawyer-list/lawyer-list.component').then(
+            (m) => m.LawyerListComponent
+          ),
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./features/users/user-list/user-list.component').then((m) => m.UserListComponent),

@@ -1,0 +1,292 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Lawyers</h1>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        Manage attorneys and legal professionals
+      </p>
+    </div>
+    @if (canCreate) {
+      <button
+        (click)="openCreateForm()"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+      >
+        <span class="inline-flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Lawyer
+        </span>
+      </button>
+    }
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-4 mb-6">
+    <div class="flex items-center gap-4">
+      <div class="flex-1">
+        <input
+          type="text"
+          (input)="onSearchChange($event)"
+          placeholder="Search by name, email, tax ID..."
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+
+      @if (selectedIds().size > 0 && canDelete) {
+        <button
+          (click)="bulkDeactivate()"
+          class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+        >
+          Deactivate Selected ({{ selectedIds().size }})
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (error()) {
+    <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-6">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Loading State (Initial) -->
+  @if (initialLoad() && loading()) {
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-12 text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-600 dark:text-gray-400">Loading lawyers...</p>
+    </div>
+  }
+
+  <!-- Empty State -->
+  @else if (!lawyers() || lawyers()!.content.length === 0) {
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-12 text-center">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+        @if (searchTerm()) {
+          No lawyers found
+        } @else {
+          No lawyers yet
+        }
+      </h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        @if (searchTerm()) {
+          Try adjusting your search terms
+        } @else if (canCreate) {
+          Get started by creating a new lawyer
+        }
+      </p>
+      @if (canCreate && !searchTerm()) {
+        <div class="mt-6">
+          <button
+            (click)="openCreateForm()"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
+          >
+            New Lawyer
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Lawyers Table -->
+  @else {
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+      <!-- Loading Overlay -->
+      @if (loading() && !initialLoad()) {
+        <div class="absolute inset-0 bg-white dark:bg-gray-800 bg-opacity-75 dark:bg-opacity-75 flex items-center justify-center z-10">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      }
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700">
+            <tr>
+              @if (canDelete) {
+                <th class="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    [checked]="allSelected"
+                    (change)="toggleSelectAll()"
+                    class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                  />
+                </th>
+              }
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Name
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Tax ID
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Email
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Phone
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Status
+              </th>
+              @if (canUpdate || canDelete) {
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Actions
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            @for (lawyer of lawyers()!.content; track lawyer.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                @if (canDelete) {
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(lawyer.id)"
+                      (change)="toggleSelection(lawyer.id)"
+                      class="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
+                }
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                      <span class="text-blue-600 dark:text-blue-300 font-semibold">
+                        {{ lawyer.firstName.charAt(0) }}{{ lawyer.lastName.charAt(0) }}
+                      </span>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900 dark:text-white">
+                        {{ lawyer.firstName }} {{ lawyer.lastName }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900 dark:text-gray-200">{{ lawyer.taxId }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900 dark:text-gray-200">
+                    {{ lawyer.email || '-' }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900 dark:text-gray-200">
+                    {{ lawyer.phone || '-' }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  @if (lawyer.active) {
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                      Active
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                      Inactive
+                    </span>
+                  }
+                </td>
+                @if (canUpdate || canDelete) {
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end gap-2">
+                      @if (canUpdate) {
+                        <button
+                          (click)="openEditForm(lawyer)"
+                          class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                          title="Edit"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                      }
+                      @if (canDelete && lawyer.active) {
+                        <button
+                          (click)="deactivateLawyer(lawyer.id)"
+                          class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                          title="Deactivate"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-600">
+        <div class="flex items-center gap-4">
+          <span class="text-sm text-gray-700 dark:text-gray-300">
+            Showing
+            <span class="font-medium">{{ lawyers()!.number * lawyers()!.size + 1 }}</span>
+            to
+            <span class="font-medium">{{ Math.min((lawyers()!.number + 1) * lawyers()!.size, lawyers()!.totalElements) }}</span>
+            of
+            <span class="font-medium">{{ lawyers()!.totalElements }}</span>
+            lawyers
+          </span>
+
+          <select
+            [value]="size()"
+            (change)="onPageSizeChange($event)"
+            class="border border-gray-300 dark:border-gray-600 rounded px-3 py-1 text-sm bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
+          >
+            <option [value]="10">10 per page</option>
+            <option [value]="20">20 per page</option>
+            <option [value]="50">50 per page</option>
+            <option [value]="100">100 per page</option>
+          </select>
+        </div>
+
+        <div class="flex gap-2">
+          <button
+            (click)="onPageChange(page() - 1)"
+            [disabled]="lawyers()!.first"
+            [class.opacity-50]="lawyers()!.first"
+            [class.cursor-not-allowed]="lawyers()!.first"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:hover:bg-white dark:disabled:hover:bg-gray-800 transition-colors"
+          >
+            Previous
+          </button>
+
+          <span class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+            Page {{ lawyers()!.number + 1 }} of {{ lawyers()!.totalPages }}
+          </span>
+
+          <button
+            (click)="onPageChange(page() + 1)"
+            [disabled]="lawyers()!.last"
+            [class.opacity-50]="lawyers()!.last"
+            [class.cursor-not-allowed]="lawyers()!.last"
+            class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:hover:bg-white dark:disabled:hover:bg-gray-800 transition-colors"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Lawyer Form Modal -->
+@if (showForm()) {
+  <app-lawyer-form
+    [lawyer]="editingLawyer()"
+    (close)="closeForm()"
+    (saved)="onLawyerSaved()"
+  />
+}
