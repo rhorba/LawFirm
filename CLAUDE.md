@@ -38,9 +38,18 @@ Focus: Type-safety, audit trails, bilingual support (French/Arabic), RBAC securi
 
 Core infrastructure implementation completed. Authentication, authorization, user management, and audit logging are production-ready.
 
-### 📋 Law Firm Domain - In Planning
+### 📋 Law Firm Domain - In Active Development
 
-Transitioning from generic boilerplate to law firm management system. See feature roadmap below for planned implementation.
+**✅ COMPLETED (Production Ready):**
+- Case/Dossier Management (full CRUD, advanced search, status workflows)
+- Lawyer Management (full CRUD, search, active/inactive tracking)
+- Reference Data (tribunals, case types, categories, statuses - all bilingual)
+- Financial Infrastructure (entities, repositories, summary aggregation)
+
+**🔄 NEXT UP:**
+- Client Management (profiles, relationships, conflict checking)
+
+See detailed implementation status and feature roadmap below.
 
 ### 🎯 Law Firm Feature Roadmap
 
@@ -74,6 +83,76 @@ Transitioning from generic boilerplate to law firm management system. See featur
 19. Advanced Security - 2FA, IP whitelisting, data encryption
 20. Performance Optimization - Caching, lazy loading, query optimization
 21. Technical Integrations - Calendar sync, e-signature, third-party APIs
+
+### ✅ RECENTLY COMPLETED - Case & Lawyer Management
+
+**Backend (62 Java files, 15 migrations):**
+- 8 Domain entities (Case, Lawyer, Tribunal, CaseType, CaseCategory, CaseStatus, CaseSequence, FinancialTransaction)
+- 13 DTOs (5 request, 8 response) with Bean Validation
+- 6 MapStruct mappers for entity-DTO conversion
+- 5 services with business logic (CaseService, LawyerService, TribunalService, CaseSequenceService, CaseNumberGenerator)
+- 3 REST controllers with 14 endpoints (CaseController, LawyerController, TribunalController)
+- 10 JPA repositories with custom queries and specifications
+- 2 custom exceptions (InvalidCaseNumberFormatException, InvalidStatusTransitionException)
+- 15 Flyway migrations (V17-V31)
+  - Tribunals table + 9 seeded tribunals (bilingual FR/AR)
+  - Case types table + 5 seeded types (CIVIL, PENAL, COMMERCIAL, SOCIAL, ADMIN)
+  - Case categories table + 17 seeded categories
+  - Case statuses table + 7 seeded statuses (DRAFT → CLOSED)
+  - Case type-status mapping (allowed transitions)
+  - Lawyers table with tax ID and contact info
+  - Case sequences table for auto-numbering
+  - Cases table with all relationships
+  - Financial transactions table
+  - 8 new permissions (CASE_*, LAWYER_*)
+- Case number auto-generation: {TYPE}/{TRIBUNAL}/{YEAR}/{SEQUENCE}
+- Status workflow validation (allowed transitions per case type)
+- Financial summary aggregation (payments, expenses, balance)
+
+**Frontend (17 Angular components, 9 services):**
+- Case List component (378 lines TS + 380 lines HTML)
+  - Advanced filtering: year, type, category, tribunal, lawyer, status, date range, search
+  - Cascading category dropdown (filtered by selected case type)
+  - Debounced search (300ms), pagination (20/page), bulk operations
+  - Color-coded status badges (7 statuses)
+  - Permission-based UI (CASE_READ, CASE_CREATE, CASE_UPDATE, CASE_DELETE)
+- Case Detail component (120 lines TS + 220 lines HTML)
+  - Full case information display
+  - Financial summary card (payments, expenses, balance)
+  - Audit information (created/updated timestamps, version)
+  - Quick actions sidebar (change status, edit, delete)
+- Case Form component (178 lines TS + 222 lines HTML)
+  - Unified create/edit form
+  - Cascading dropdowns (type filters categories)
+  - Form validation with real-time feedback
+  - Initial status selection (create mode)
+  - Textarea inputs with character limits
+- Change Status Modal component (102 lines TS + 96 lines HTML)
+  - Load available statuses for case type
+  - Optional reason field (500 char limit)
+  - Escape key to close
+- Lawyer List component (205 lines TS + 281 lines HTML)
+  - Search, pagination, bulk operations
+  - Active/Inactive status tracking
+  - Create/Edit modal form
+- Lawyer Form component (106 lines TS + 171 lines HTML)
+  - Modal form with validation
+  - Required: firstName, lastName, taxId
+  - Optional: email, phone
+- 9 TypeScript services (Case, Lawyer, Tribunal, CaseType, CaseCategory, CaseStatus, ReferenceData)
+- Global reference data caching (APP_INITIALIZER loads on startup)
+- 3 new routes: /cases, /cases/:id, /cases/:id/edit, /cases/new, /lawyers
+- Dark mode support across all components
+- Lazy-loaded routes (5.06 kB compressed per route)
+
+**Build Metrics:**
+- Production bundle: 354.45 kB initial / 97.28 kB compressed
+- Case list chunk: 20.53 kB raw / 4.81 kB compressed
+- Case detail chunk: 18.40 kB raw / 4.77 kB compressed
+- Case form chunk: 15.74 kB raw / 3.64 kB compressed
+- Lawyer list chunk: 25.72 kB raw / 5.64 kB compressed
+
+---
 
 ### ✅ Completed Foundation (Inherited from Boilerplate)
 
