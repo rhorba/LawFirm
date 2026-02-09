@@ -1,8 +1,8 @@
 # Testing Scenarios: Case Management Feature
 
-**Version:** 1.0
-**Last Updated:** 2026-02-08
-**Status:** Production Ready
+**Version:** 2.0
+**Last Updated:** 2026-02-09
+**Status:** Production Ready with Test Data
 **Coverage:** Case & Lawyer Management Full Stack
 
 ---
@@ -41,8 +41,33 @@ Frontend runs at: http://localhost:4200
 
 | Username | Password | Role | Permissions |
 |----------|----------|------|-------------|
-| admin | admin123 | ADMIN | All permissions |
-| user | user123 | USER | Read-only permissions |
+| admin | admin123 | ADMIN | All permissions (CREATE, READ, UPDATE, DELETE for all modules) |
+| user | admin123 | USER | Read-only permissions (CASE_READ, LAWYER_READ, TRIBUNAL_READ, CASETYPE_READ) |
+
+> **Note:** Both test users use the same password (`admin123`) for simplicity in testing.
+
+### Pre-Seeded Test Data
+
+The database is pre-populated with realistic test data for immediate testing:
+
+**Lawyers (6 total)**:
+| Name | Tax ID | Email | Phone | Status |
+|------|--------|-------|-------|--------|
+| Ahmed BENOMAR | TAX001 | ahmed.benomar@lawfirm.ma | +212-6-12-34-56-78 | Active |
+| Fatima ALAOUI | TAX002 | fatima.alaoui@lawfirm.ma | +212-6-23-45-67-89 | Active |
+| Youssef IDRISSI | TAX003 | youssef.idrissi@lawfirm.ma | +212-6-34-56-78-90 | Active |
+| Samira KETTANI | TAX004 | samira.kettani@lawfirm.ma | +212-6-45-67-89-01 | Active |
+| Karim BENJELLOUN | TAX005 | karim.benjelloun@lawfirm.ma | +212-6-56-78-90-12 | Active |
+| Nadia LAZRAK | TAX006 | nadia.lazrak@lawfirm.ma | +212-6-67-89-01-23 | **Inactive** |
+
+**Cases (10 total)**:
+- **Years**: 2023, 2024, 2025, 2026
+- **Types**: Civil (4), Commercial (3), Administrative (2), Criminal (1)
+- **Statuses**: Draft (1), Open (2), In Progress (3), Hearing (2), Judgment (1), Closed (1)
+- **Tribunals**: Distributed across Rabat, Casablanca, Marrakech, Fes, Tanger
+- **Case Numbers**: Range from `CIVIL/TR_PIN_1/2024/00001` to `COMMERC/TR_COM_PIN_8/2026/00001`
+
+This pre-seeded data allows immediate testing without manual data entry.
 
 ### API Documentation
 Swagger UI: http://localhost:8080/swagger-ui.html
@@ -100,15 +125,17 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 ### Test Case 2.1: Create Lawyer
 **Objective:** Create a new lawyer profile
 
+> **Note:** The system already has 6 pre-seeded lawyers. Use a unique Tax ID for new test lawyers.
+
 **Steps:**
 1. Login as admin
 2. Click "Lawyers" in sidebar
 3. Click "New Lawyer" button
 4. Fill form:
-   - First Name: `Ahmed`
+   - First Name: `Mohammed`
    - Last Name: `Benali`
-   - Tax ID: `TAX001`
-   - Email: `ahmed.benali@lawfirm.ma`
+   - Tax ID: `TAX007` (unique - TAX001-TAX006 already used)
+   - Email: `mohammed.benali@lawfirm.ma`
    - Phone: `+212 6 12 34 56 78`
 5. Click "Create Lawyer"
 
@@ -117,7 +144,7 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 - ✅ Success notification (if implemented)
 - ✅ Lawyer appears in list
 - ✅ Status badge shows "Active"
-- ✅ Full name displays as "Ahmed Benali"
+- ✅ Full name displays as "Ahmed BENOMAR"
 
 **Verification:**
 - Check database: `SELECT * FROM lawyers WHERE tax_id = 'TAX001';`
@@ -128,7 +155,7 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 
 **Steps:**
 1. Navigate to Lawyers list
-2. Find lawyer "Ahmed Benali"
+2. Find lawyer "Ahmed BENOMAR"
 3. Click Edit icon
 4. Modify:
    - Email: `a.benali@lawfirm.ma`
@@ -149,7 +176,7 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 3. Wait 300ms (debounce)
 
 **Expected Result:**
-- ✅ List filters to show only "Ahmed Benali"
+- ✅ List filters to show only "Ahmed BENOMAR"
 - ✅ Other lawyers hidden
 - ✅ Search is case-insensitive
 
@@ -249,26 +276,31 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 ### Test Case 3.2: Create New Case
 **Objective:** Create a case with auto-generated number
 
+> **Note:** The system has 10 pre-seeded cases. New cases will increment the sequence number appropriately.
+
 **Steps:**
 1. Navigate to Cases list
 2. Click "New Case" button
 3. Fill form:
    - Case Type: `PENAL` (Criminal)
-   - Category: `PENAL_FLAGRANT_DELIT` (Caught in the act)
-   - Tribunal: `TA` (Administrative Tribunal of Rabat)
-   - Lawyer: Select "Ahmed Benali"
-   - Registration Date: `2026-02-08`
+   - Category: Select a criminal category from dropdown
+   - Tribunal: `TR_PIN_1` (Tribunal de 1ère instance de Rabat)
+   - Lawyer: Select "Ahmed BENOMAR" (or any active lawyer from the dropdown)
+   - Registration Date: `2026-02-09`
    - Case Description: `Vol à l'étalage - Hypermarché Marjane`
    - Matter Description: `Client accusé de vol de marchandises d'une valeur de 500 MAD`
-   - Initial Status: Leave blank (defaults to DRAFT)
+   - Initial Status: Select `DRAFT` or leave as default
 4. Click "Create Case"
 
 **Expected Result:**
 - ✅ Redirects to case detail page
-- ✅ Case number generated: `PENAL/TA/2026/00001`
-- ✅ Status shows "BROUILLON" (DRAFT)
-- ✅ Financial summary shows 0.00 MAD for all
-- ✅ Audit info shows creation timestamp
+- ✅ Case number generated in format: `PENAL/TR_PIN_1/2026/00XXX` (sequence increments from existing cases)
+- ✅ Status shows "Draft" badge
+- ✅ Financial summary shows:
+  - Total Payments: 0.00 MAD
+  - Total Expenses: 0.00 MAD
+  - Balance: 0.00 MAD
+- ✅ Audit info shows creation timestamp and version
 
 **Verification:**
 - Database check: `SELECT * FROM cases WHERE case_type_code = 'PENAL' AND year = 2026;`
@@ -396,7 +428,7 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 1. Year: `2026`
 2. Type: `PENAL`
 3. Status: `OUVERT`
-4. Lawyer: `Ahmed Benali`
+4. Lawyer: `Ahmed BENOMAR`
 
 **Expected Result:**
 - ✅ Results match ALL criteria (AND logic)
@@ -471,31 +503,31 @@ Swagger UI: http://localhost:8080/swagger-ui.html
 **Objective:** Test lawyer dropdown after creating new lawyer
 
 **Steps:**
-1. Create a new lawyer: "Fatima Zahra"
+1. Create a new lawyer: "Fatima ALAOUI"
 2. Navigate to Cases → New Case
 3. Open Lawyer dropdown
 
 **Expected Result:**
-- ✅ "Fatima Zahra" appears in dropdown
+- ✅ "Fatima ALAOUI" appears in dropdown
 - ✅ Can select newly created lawyer
 
 ### Test Case 4.2: Deactivated Lawyer Not Shown
 **Objective:** Verify inactive lawyers excluded from dropdowns
 
 **Steps:**
-1. Deactivate lawyer "Ahmed Benali"
+1. Deactivate lawyer "Ahmed BENOMAR"
 2. Navigate to Cases → New Case
 3. Open Lawyer dropdown
 
 **Expected Result:**
-- ✅ "Ahmed Benali" NOT in dropdown
+- ✅ "Ahmed BENOMAR" NOT in dropdown
 - ✅ Only active lawyers shown
 
 ### Test Case 4.3: Case Count Per Lawyer
 **Objective:** Verify case count tracking
 
 **Steps:**
-1. Create 3 cases for lawyer "Fatima Zahra"
+1. Create 3 cases for lawyer "Fatima ALAOUI"
 2. Call API: `GET /api/lawyers/{id}/cases/count`
 
 **Expected Result:**
