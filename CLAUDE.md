@@ -154,7 +154,7 @@ See detailed implementation status and feature roadmap below.
 
 ---
 
-### ✅ Completed Foundation (Inherited from Boilerplate)
+### ✅ Completed Foundation (Inherited from LawFirm)
 
 **Phase 1: Project Structure & Configuration**
 - Monorepo structure (/backend, /frontend)

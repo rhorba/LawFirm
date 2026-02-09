@@ -27,7 +27,15 @@
       "Bash(tee:*)",
       "Bash(grep:*)",
       "Bash(taskkill:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(mvn clean package:*)",
+      "Bash(java -jar:*)",
+      "Bash(netstat:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(docker ps:*)",
+      "Bash(find:*)",
+      "Bash(xargs sed:*)"
     ]
   }
 }

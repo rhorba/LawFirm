@@ -273,7 +273,7 @@ Access:
 - Frontend: `http://localhost:4200`
 - Backend API: `http://localhost:8080/api`
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
-- H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:boilerplate`, username: `sa`, password: empty)
+- H2 Console: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:lawfirm`, username: `sa`, password: empty)
 
 **Features**:
 - Hot-reload for both frontend and backend
@@ -603,5 +603,5 @@ For issues and questions, please open a GitHub issue or contact the development 
 
 ## Acknowledgments
 
-Built on enterprise-grade boilerplate architecture with Spring Boot 3.4 and Angular 18. Designed specifically for legal practice management with bilingual support (French/Arabic) for Moroccan law firms.
+Built on enterprise-grade lawfirm architecture with Spring Boot 3.4 and Angular 18. Designed specifically for legal practice management with bilingual support (French/Arabic) for Moroccan law firms.
 "# LawFirm" 

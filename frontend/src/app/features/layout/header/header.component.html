@@ -14,7 +14,7 @@
 
     <!-- Breadcrumbs (hidden on mobile) -->
     <nav class="hidden md:flex items-center gap-1 text-sm">
-      @for (crumb of breadcrumbs(); track crumb.url) {
+      @for (crumb of breadcrumbs(); track crumb.label + crumb.url) {
         @if (!crumb.isLast) {
           <a
             [routerLink]="crumb.url"

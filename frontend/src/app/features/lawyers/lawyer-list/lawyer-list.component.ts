@@ -152,7 +152,7 @@ export class LawyerListComponent implements OnInit, OnDestroy {
 
   get allSelected(): boolean {
     const lawyers = this.lawyers();
-    if (!lawyers || lawyers.content.length === 0) return false;
+    if (!lawyers || !lawyers.content || lawyers.content.length === 0) return false;
     return this.selectedIds().size === lawyers.content.length;
   }
 

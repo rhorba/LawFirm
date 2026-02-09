@@ -1,6 +1,8 @@
 spring:
   application:
-    name: enterprise-boilerplate
+    name: enterprise-lawfirm
+  profiles:
+    default: dev
 
   jpa:
     open-in-view: false

@@ -12,11 +12,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.boilerplate</groupId>
+    <groupId>com.lawfirm</groupId>
     <artifactId>backend</artifactId>
     <version>1.0.0</version>
-    <name>Enterprise Boilerplate Backend</name>
-    <description>Spring Boot backend with hexagonal architecture</description>
+    <name>Law Firm Management Backend</name>
+    <description>Spring Boot backend for law firm management with hexagonal architecture</description>
 
     <properties>
         <java.version>21</java.version>

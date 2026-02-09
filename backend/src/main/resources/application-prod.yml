@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:boilerplate}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:lawfirm}
     username: ${DB_USER:admin}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -26,5 +26,5 @@ cors:
 
 logging:
   level:
-    com.boilerplate: INFO
+    com.lawfirm: INFO
     org.springframework: WARN

@@ -61,7 +61,7 @@
   }
 
   <!-- Empty State -->
-  @else if (!lawyers() || lawyers()!.content.length === 0) {
+  @else if (!lawyers() || lawyers()?.content?.length === 0) {
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-12 text-center">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -95,7 +95,7 @@
   }
 
   <!-- Lawyers Table -->
-  @else {
+  @else if (lawyers()) {
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
       <!-- Loading Overlay -->
       @if (loading() && !initialLoad()) {
