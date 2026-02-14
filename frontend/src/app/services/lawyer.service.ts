@@ -28,7 +28,7 @@ export class LawyerService {
   }
 
   getAll(): Observable<LawyerResponse[]> {
-    return this.http.get<LawyerResponse[]>(this.apiUrl);
+    return this.http.get<LawyerResponse[]>(`${this.apiUrl}/all`);
   }
 
   getById(id: number): Observable<LawyerResponse> {
@@ -57,6 +57,10 @@ export class LawyerService {
 
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  activateLawyer(id: number): Observable<LawyerResponse> {
+    return this.http.patch<LawyerResponse>(`${this.apiUrl}/${id}/activate`, {});
   }
 
   getCaseCount(id: number): Observable<number> {

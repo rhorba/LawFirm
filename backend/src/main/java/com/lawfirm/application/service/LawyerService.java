@@ -9,6 +9,8 @@ import com.lawfirm.domain.repository.LawyerRepository;
 import com.lawfirm.presentation.exception.DuplicateResourceException;
 import com.lawfirm.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,13 @@ public class LawyerService {
 
     public List<LawyerResponse> findAll() {
         return lawyerMapper.toResponseList(lawyerRepository.findAllByActiveTrue());
+    }
+
+    public Page<LawyerResponse> search(String search, int page, int size) {
+        return lawyerRepository.search(
+            search == null || search.isBlank() ? null : search,
+            PageRequest.of(page, size)
+        ).map(lawyerMapper::toResponse);
     }
 
     public LawyerResponse findById(Long id) {
@@ -69,6 +78,15 @@ public class LawyerService {
             .orElseThrow(() -> new ResourceNotFoundException("Lawyer not found with id: " + id));
         lawyer.setActive(false);
         lawyerRepository.save(lawyer);
+    }
+
+    @Transactional
+    public LawyerResponse activate(Long id) {
+        Lawyer lawyer = lawyerRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Lawyer not found with id: " + id));
+        lawyer.setActive(true);
+        lawyer = lawyerRepository.save(lawyer);
+        return lawyerMapper.toResponse(lawyer);
     }
 
     public Long getCaseCount(Long lawyerId) {

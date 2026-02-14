@@ -53,7 +53,8 @@ public class SecurityConfig {
                     "/api/case-types",
                     "/api/case-categories",
                     "/api/case-statuses",
-                    "/api/lawyers"
+                    "/api/lawyers",
+                    "/api/lawyers/all"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

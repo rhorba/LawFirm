@@ -171,6 +171,17 @@ export class LawyerListComponent implements OnInit, OnDestroy {
     });
   }
 
+  activateLawyer(id: number): void {
+    this.lawyerService.activateLawyer(id).subscribe({
+      next: () => {
+        this.loadLawyers();
+      },
+      error: (err: unknown) => {
+        alert(this.extractErrorMessage(err, 'Failed to activate lawyer'));
+      },
+    });
+  }
+
   bulkDeactivate(): void {
     const count = this.selectedIds().size;
     if (count === 0) return;

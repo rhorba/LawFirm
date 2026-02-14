@@ -35,7 +35,10 @@
       "Bash(ping:*)",
       "Bash(docker ps:*)",
       "Bash(find:*)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(mvn compile:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(git diff:*)"
     ]
   }
 }
