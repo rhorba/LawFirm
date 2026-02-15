@@ -139,16 +139,18 @@ public class CaseService {
     public Page<CaseSummary> searchCases(
         Integer year,
         String caseTypeCode,
+        String categoryCode,
         String tribunalCode,
         Long lawyerId,
         String statusCode,
         java.time.LocalDate registrationDateFrom,
         java.time.LocalDate registrationDateTo,
+        String search,
         Pageable pageable
     ) {
         Specification<Case> spec = CaseSpecification.withFilters(
-            year, caseTypeCode, tribunalCode, lawyerId, statusCode,
-            registrationDateFrom, registrationDateTo
+            year, caseTypeCode, categoryCode, tribunalCode, lawyerId, statusCode,
+            registrationDateFrom, registrationDateTo, search
         );
 
         return caseRepository.findAll(spec, pageable)

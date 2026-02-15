@@ -65,11 +65,13 @@ public class CaseController {
     public ResponseEntity<Page<CaseSummary>> searchCases(
         @RequestParam(required = false) Integer year,
         @RequestParam(required = false) String caseTypeCode,
+        @RequestParam(required = false) String categoryCode,
         @RequestParam(required = false) String tribunalCode,
         @RequestParam(required = false) Long lawyerId,
         @RequestParam(required = false) String statusCode,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate registrationDateFrom,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate registrationDateTo,
+        @RequestParam(required = false) String search,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size,
         @RequestParam(defaultValue = "registrationDate") String sortBy,
@@ -79,8 +81,8 @@ public class CaseController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         return ResponseEntity.ok(caseService.searchCases(
-            year, caseTypeCode, tribunalCode, lawyerId, statusCode,
-            registrationDateFrom, registrationDateTo, pageable
+            year, caseTypeCode, categoryCode, tribunalCode, lawyerId, statusCode,
+            registrationDateFrom, registrationDateTo, search, pageable
         ));
     }
 

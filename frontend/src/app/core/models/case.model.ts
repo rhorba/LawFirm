@@ -81,6 +81,7 @@ export interface CaseSearchParams {
   statusCode?: string;
   dateFrom?: string;
   dateTo?: string;
+  search?: string;
   page?: number;
   size?: number;
   sortBy?: string;
@@ -119,6 +120,6 @@ export interface UpdateCaseRequest {
 }
 
 export interface ChangeStatusRequest {
-  newStatusCode: string;
+  statusCode: string;
   reason?: string;
 }

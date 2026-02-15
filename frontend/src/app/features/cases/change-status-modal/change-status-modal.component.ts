@@ -25,7 +25,7 @@ export class ChangeStatusModalComponent implements OnInit {
   availableStatuses = signal<any[]>([]);
 
   statusForm = this.fb.nonNullable.group({
-    newStatusCode: ['', [Validators.required]],
+    statusCode: ['', [Validators.required]],
     reason: ['', [Validators.maxLength(500)]],
   });
 
@@ -63,7 +63,7 @@ export class ChangeStatusModalComponent implements OnInit {
 
     const formValue = this.statusForm.getRawValue();
     const request: ChangeStatusRequest = {
-      newStatusCode: formValue.newStatusCode,
+      statusCode: formValue.statusCode,
       reason: formValue.reason || undefined,
     };
 

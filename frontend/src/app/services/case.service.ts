@@ -48,6 +48,9 @@ export class CaseService {
     if (params.dateTo) {
       httpParams = httpParams.set('registrationDateTo', params.dateTo);
     }
+    if (params.search) {
+      httpParams = httpParams.set('search', params.search);
+    }
 
     return this.http.get<PageResponse<CaseSummary>>(this.apiUrl, { params: httpParams });
   }

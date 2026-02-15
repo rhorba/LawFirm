@@ -13,11 +13,13 @@ public class CaseSpecification {
     public static Specification<Case> withFilters(
         Integer year,
         String caseTypeCode,
+        String categoryCode,
         String tribunalCode,
         Long lawyerId,
         String statusCode,
         LocalDate registrationDateFrom,
-        LocalDate registrationDateTo
+        LocalDate registrationDateTo,
+        String search
     ) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -31,6 +33,10 @@ public class CaseSpecification {
 
             if (caseTypeCode != null && !caseTypeCode.isBlank()) {
                 predicates.add(criteriaBuilder.equal(root.get("caseType").get("code"), caseTypeCode));
+            }
+
+            if (categoryCode != null && !categoryCode.isBlank()) {
+                predicates.add(criteriaBuilder.equal(root.get("caseCategory").get("code"), categoryCode));
             }
 
             if (tribunalCode != null && !tribunalCode.isBlank()) {
@@ -53,6 +59,14 @@ public class CaseSpecification {
             if (registrationDateTo != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(
                     root.get("registrationDate"), registrationDateTo));
+            }
+
+            if (search != null && !search.isBlank()) {
+                String pattern = "%" + search.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("fullCaseNumber")), pattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("caseDescription")), pattern)
+                ));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

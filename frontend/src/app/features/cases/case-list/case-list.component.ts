@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { forkJoin } from 'rxjs';
@@ -50,6 +50,10 @@ export class CaseListComponent implements OnInit, OnDestroy {
 
   // UI State
   filtersExpanded = signal(true);
+
+  // Sorting
+  sortBy = signal('registrationDate');
+  sortDirection = signal<'ASC' | 'DESC'>('DESC');
 
   // Selection (bulk operations)
   selectedIds = signal<Set<number>>(new Set());
@@ -105,6 +109,8 @@ export class CaseListComponent implements OnInit, OnDestroy {
     const params: CaseSearchParams = {
       page: this.page(),
       size: this.size(),
+      sortBy: this.sortBy(),
+      sortDirection: this.sortDirection(),
       year: this.year() ?? undefined,
       caseTypeCode: this.caseTypeCode() || undefined,
       categoryCode: this.categoryCode() || undefined,
@@ -113,6 +119,7 @@ export class CaseListComponent implements OnInit, OnDestroy {
       statusCode: this.statusCode() || undefined,
       dateFrom: this.dateFrom() ?? undefined,
       dateTo: this.dateTo() ?? undefined,
+      search: this.searchTerm() || undefined,
     };
 
     this.caseService.searchCases(params).subscribe({
@@ -211,6 +218,22 @@ export class CaseListComponent implements OnInit, OnDestroy {
     } else {
       this.dateRangeError.set(null);
     }
+  }
+
+  onSort(column: string) {
+    if (this.sortBy() === column) {
+      this.sortDirection.set(this.sortDirection() === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      this.sortBy.set(column);
+      this.sortDirection.set('ASC');
+    }
+    this.page.set(0);
+    this.loadCases();
+  }
+
+  getSortIcon(column: string): string {
+    if (this.sortBy() !== column) return '↕';
+    return this.sortDirection() === 'ASC' ? '↑' : '↓';
   }
 
   resetFilters() {

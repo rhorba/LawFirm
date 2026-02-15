@@ -36,21 +36,21 @@
 
         <!-- New Status Selection -->
         <div>
-          <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="newStatusCode">
+          <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="statusCode">
             New Status <span class="text-red-500">*</span>
           </label>
           <select
-            id="newStatusCode"
-            formControlName="newStatusCode"
+            id="statusCode"
+            formControlName="statusCode"
             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-            [class.border-red-500]="statusForm.get('newStatusCode')?.invalid && statusForm.get('newStatusCode')?.touched"
+            [class.border-red-500]="statusForm.get('statusCode')?.invalid && statusForm.get('statusCode')?.touched"
           >
             <option value="">Select new status</option>
             @for (status of availableStatuses(); track status.code) {
               <option [value]="status.code">{{ status.nameFr }}</option>
             }
           </select>
-          @if (statusForm.get('newStatusCode')?.invalid && statusForm.get('newStatusCode')?.touched) {
+          @if (statusForm.get('statusCode')?.invalid && statusForm.get('statusCode')?.touched) {
             <p class="text-red-500 text-xs italic mt-1">
               Please select a new status
             </p>

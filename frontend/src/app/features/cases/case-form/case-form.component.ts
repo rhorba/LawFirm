@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -39,9 +40,15 @@ export class CaseFormComponent implements OnInit {
     initialStatusCode: [''], // Only for create mode
   });
 
+  // Convert form control valueChanges to a signal for reactive computed
+  private selectedCaseTypeCode = toSignal(
+    this.caseForm.get('caseTypeCode')!.valueChanges,
+    { initialValue: '' }
+  );
+
   // Computed categories filtered by selected case type
   caseCategories = computed(() => {
-    const typeCode = this.caseForm.get('caseTypeCode')?.value;
+    const typeCode = this.selectedCaseTypeCode();
     if (!typeCode) return [];
     return this.refDataService.categories().filter((c: any) => c.caseTypeCode === typeCode);
   });
