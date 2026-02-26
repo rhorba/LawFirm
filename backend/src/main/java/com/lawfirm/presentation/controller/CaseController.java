@@ -3,12 +3,17 @@ package com.lawfirm.presentation.controller;
 import com.lawfirm.application.dto.request.ChangeStatusRequest;
 import com.lawfirm.application.dto.request.CreateCaseRequest;
 import com.lawfirm.application.dto.request.UpdateCaseRequest;
+import com.lawfirm.application.dto.response.AuditLogResponse;
 import com.lawfirm.application.dto.response.CaseResponse;
 import com.lawfirm.application.dto.response.CaseSummary;
+import com.lawfirm.application.dto.response.CaseSummaryResponse;
+import com.lawfirm.application.service.AuditLogService;
+import com.lawfirm.application.service.CaseExportService;
 import com.lawfirm.application.service.CaseService;
 import com.lawfirm.infrastructure.security.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,7 +36,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/cases")
@@ -40,6 +48,8 @@ import java.time.LocalDate;
 public class CaseController {
 
     private final CaseService caseService;
+    private final CaseExportService caseExportService;
+    private final AuditLogService auditLogService;
 
     @PostMapping
     @PreAuthorize("hasPermission(null, 'CASE_CREATE')")
@@ -59,6 +69,10 @@ public class CaseController {
         return ResponseEntity.ok(caseService.findById(id));
     }
 
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+        "registrationDate", "fullCaseNumber", "year", "sequenceNumber", "priority", "createdAt"
+    );
+
     @GetMapping
     @PreAuthorize("hasPermission(null, 'CASE_READ')")
     @Operation(summary = "Search/list cases")
@@ -69,6 +83,7 @@ public class CaseController {
         @RequestParam(required = false) String tribunalCode,
         @RequestParam(required = false) Long lawyerId,
         @RequestParam(required = false) String statusCode,
+        @RequestParam(required = false) String priority,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate registrationDateFrom,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate registrationDateTo,
         @RequestParam(required = false) String search,
@@ -77,13 +92,52 @@ public class CaseController {
         @RequestParam(defaultValue = "registrationDate") String sortBy,
         @RequestParam(defaultValue = "DESC") String sortDirection
     ) {
+        String safeSortBy = ALLOWED_SORT_FIELDS.contains(sortBy) ? sortBy : "registrationDate";
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, safeSortBy));
 
         return ResponseEntity.ok(caseService.searchCases(
-            year, caseTypeCode, categoryCode, tribunalCode, lawyerId, statusCode,
+            year, caseTypeCode, categoryCode, tribunalCode, lawyerId, statusCode, priority,
             registrationDateFrom, registrationDateTo, search, pageable
         ));
+    }
+
+    @GetMapping("/export")
+    @PreAuthorize("hasPermission(null, 'CASE_READ')")
+    @Operation(summary = "Export cases to Excel (.xlsx)")
+    public void exportCases(
+        @RequestParam(required = false) Integer year,
+        @RequestParam(required = false) String caseTypeCode,
+        @RequestParam(required = false) String categoryCode,
+        @RequestParam(required = false) String tribunalCode,
+        @RequestParam(required = false) Long lawyerId,
+        @RequestParam(required = false) String statusCode,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate registrationDateFrom,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate registrationDateTo,
+        @RequestParam(required = false) String search,
+        HttpServletResponse response
+    ) throws IOException {
+        byte[] xlsx = caseExportService.exportFilteredCases(
+            year, caseTypeCode, categoryCode, tribunalCode, lawyerId, statusCode,
+            registrationDateFrom, registrationDateTo, search
+        );
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=cases-export.xlsx");
+        response.getOutputStream().write(xlsx);
+    }
+
+    @GetMapping("/{id}/children")
+    @PreAuthorize("hasPermission(null, 'CASE_READ')")
+    @Operation(summary = "Get child (linked) cases")
+    public ResponseEntity<List<CaseSummaryResponse>> getChildren(@PathVariable Long id) {
+        return ResponseEntity.ok(caseService.findChildren(id));
+    }
+
+    @GetMapping("/{id}/history")
+    @PreAuthorize("hasPermission(null, 'CASE_READ')")
+    @Operation(summary = "Get audit history for a case")
+    public ResponseEntity<List<AuditLogResponse>> getHistory(@PathVariable Long id) {
+        return ResponseEntity.ok(auditLogService.findByResource("CASE", id));
     }
 
     @PutMapping("/{id}")

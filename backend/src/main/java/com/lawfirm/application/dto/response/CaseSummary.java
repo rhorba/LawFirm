@@ -1,5 +1,7 @@
 package com.lawfirm.application.dto.response;
 
+import com.lawfirm.domain.model.CasePriority;
+
 import java.time.LocalDate;
 
 public record CaseSummary(
@@ -10,5 +12,6 @@ public record CaseSummary(
     String caseTypeNameFr,
     String lawyerName,
     String statusNameFr,
-    LocalDate registrationDate
+    LocalDate registrationDate,
+    CasePriority priority
 ) {}

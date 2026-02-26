@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,12 +17,16 @@ public interface CaseRepository extends JpaRepository<Case, Long>, JpaSpecificat
 
     @Query("SELECT c FROM Case c " +
            "LEFT JOIN FETCH c.tribunal " +
-           "LEFT JOIN FETCH c.caseType " +
+           "LEFT JOIN FETCH c.caseType ct " +
+           "LEFT JOIN FETCH ct.allowedStatuses " +
            "LEFT JOIN FETCH c.caseCategory " +
-           "LEFT JOIN FETCH c.lawyer " +
+           "LEFT JOIN FETCH c.lawyers " +
            "LEFT JOIN FETCH c.status " +
-           "WHERE c.id = :id")
+           "LEFT JOIN FETCH c.parentCase " +
+           "WHERE c.id = :id AND c.deletedAt IS NULL")
     Optional<Case> findByIdWithDetails(@Param("id") Long id);
 
     boolean existsByFullCaseNumber(String fullCaseNumber);
+
+    List<Case> findByParentCaseIdAndDeletedAtIsNull(Long parentCaseId);
 }

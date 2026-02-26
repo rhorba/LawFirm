@@ -1,5 +1,13 @@
 import { LawyerResponse } from './lawyer.model';
 
+export type CasePriority = 'URGENT' | 'HIGH' | 'NORMAL' | 'LOW';
+export type CaseOutcome = 'WON' | 'LOST' | 'SETTLED' | 'DISMISSED';
+
+export interface CaseSummaryResponse {
+  id: number;
+  fullCaseNumber: string;
+}
+
 export interface CaseResponse {
   id: number;
   version: number;
@@ -14,9 +22,16 @@ export interface CaseResponse {
   tribunal: TribunalResponse;
   caseType: CaseTypeResponse;
   caseCategory?: CaseCategoryResponse;
-  lawyer: LawyerResponse;
+  lawyers: LawyerResponse[];
   status: CaseStatusResponse;
   financialSummary: FinancialSummary;
+  priority: CasePriority;
+  opposingParty?: string;
+  outcome?: CaseOutcome;
+  outcomeNotes?: string;
+  initialPaymentDate?: string;
+  fiscalYear?: number;
+  parentCase?: CaseSummaryResponse;
 }
 
 export interface CaseSummary {
@@ -28,6 +43,7 @@ export interface CaseSummary {
   lawyerName: string;
   statusNameFr: string;
   registrationDate: string;
+  priority: CasePriority;
 }
 
 export interface TribunalResponse {
@@ -79,6 +95,7 @@ export interface CaseSearchParams {
   tribunalCode?: string;
   lawyerId?: number;
   statusCode?: string;
+  priority?: CasePriority;
   dateFrom?: string;
   dateTo?: string;
   search?: string;
@@ -102,24 +119,61 @@ export interface CreateCaseRequest {
   caseTypeCode: string;
   caseCategoryCode?: string;
   tribunalCode: string;
-  lawyerId: number;
+  lawyerIds: number[];
   registrationDate: string;
   caseDescription: string;
   matterDescription?: string;
   initialStatusCode?: string;
+  priority?: CasePriority;
+  opposingParty?: string;
+  outcome?: CaseOutcome;
+  outcomeNotes?: string;
+  initialPaymentDate?: string;
+  fiscalYear?: number;
+  parentCaseId?: number;
 }
 
 export interface UpdateCaseRequest {
-  caseTypeCode: string;
+  caseTypeCode?: string;
   caseCategoryCode?: string;
-  tribunalCode: string;
-  lawyerId: number;
-  registrationDate: string;
-  caseDescription: string;
+  tribunalCode?: string;
+  lawyerIds?: number[];
+  registrationDate?: string;
+  caseDescription?: string;
   matterDescription?: string;
+  priority?: CasePriority;
+  opposingParty?: string;
+  outcome?: CaseOutcome;
+  outcomeNotes?: string;
+  initialPaymentDate?: string;
+  fiscalYear?: number;
+  parentCaseId?: number;
 }
 
 export interface ChangeStatusRequest {
   statusCode: string;
   reason?: string;
+}
+
+export interface CaseTemplateRequest {
+  name: string;
+  caseTypeCode: string;
+  caseCategoryCode: string;
+}
+
+export interface CaseTemplateResponse {
+  id: number;
+  name: string;
+  caseTypeCode: string;
+  caseCategoryCode: string;
+}
+
+export interface AuditLogResponse {
+  id: number;
+  action: string;
+  resource: string;
+  resourceId: string;
+  username: string;
+  metadata: string;
+  createdAt: string;
 }

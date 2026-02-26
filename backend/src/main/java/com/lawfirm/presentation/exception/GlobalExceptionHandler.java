@@ -30,6 +30,16 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI());
     }
 
+    @ExceptionHandler(BusinessRuleException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleBusinessRuleException(
+        BusinessRuleException ex,
+        HttpServletRequest request
+    ) {
+        log.error("Business rule violation: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI());
+    }
+
     @ExceptionHandler(DuplicateResourceException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicateResourceException(

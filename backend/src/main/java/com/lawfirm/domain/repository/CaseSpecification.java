@@ -1,6 +1,10 @@
 package com.lawfirm.domain.repository;
 
 import com.lawfirm.domain.model.Case;
+import com.lawfirm.domain.model.CasePriority;
+import com.lawfirm.domain.model.Lawyer;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -17,6 +21,7 @@ public class CaseSpecification {
         String tribunalCode,
         Long lawyerId,
         String statusCode,
+        String priority,
         LocalDate registrationDateFrom,
         LocalDate registrationDateTo,
         String search
@@ -44,11 +49,22 @@ public class CaseSpecification {
             }
 
             if (lawyerId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("lawyer").get("id"), lawyerId));
+                Join<Case, Lawyer> lawyerJoin = root.join("lawyers", JoinType.INNER);
+                predicates.add(criteriaBuilder.equal(lawyerJoin.get("id"), lawyerId));
+                query.distinct(true);
             }
 
             if (statusCode != null && !statusCode.isBlank()) {
                 predicates.add(criteriaBuilder.equal(root.get("status").get("code"), statusCode));
+            }
+
+            if (priority != null && !priority.isBlank()) {
+                try {
+                    CasePriority priorityEnum = CasePriority.valueOf(priority.toUpperCase());
+                    predicates.add(criteriaBuilder.equal(root.get("priority"), priorityEnum));
+                } catch (IllegalArgumentException ignored) {
+                    // unknown priority value — ignore filter
+                }
             }
 
             if (registrationDateFrom != null) {

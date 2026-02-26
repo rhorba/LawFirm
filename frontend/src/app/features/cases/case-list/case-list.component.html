@@ -2,13 +2,23 @@
   <!-- Page Header -->
   <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold dark:text-white">Cases</h1>
-    @if (authService.hasPermission('CASE_CREATE')) {
-      <button
-        (click)="createCase()"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded focus:outline-none">
-        + New Case
-      </button>
-    }
+    <div class="flex items-center gap-2">
+      @if (authService.hasPermission('CASE_READ')) {
+        <button
+          (click)="exportCases()"
+          [disabled]="exportLoading()"
+          class="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded focus:outline-none">
+          {{ exportLoading() ? 'Exporting...' : 'Export Excel' }}
+        </button>
+      }
+      @if (authService.hasPermission('CASE_CREATE')) {
+        <button
+          (click)="createCase()"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded focus:outline-none">
+          + New Case
+        </button>
+      }
+    </div>
   </div>
 
   <!-- Error Message -->
@@ -122,6 +132,20 @@
             <option value="">All Statuses</option>
             @for (status of refData.statuses(); track status.id) {
               <option [value]="status.code">{{ status.nameFr }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Priority Dropdown -->
+        <div>
+          <label class="block text-sm font-medium mb-1 dark:text-gray-300">Priority</label>
+          <select
+            [value]="priority()"
+            (change)="onPriorityChange($event)"
+            class="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">All Priorities</option>
+            @for (p of priorityOptions; track p.value) {
+              <option [value]="p.value">{{ p.label }}</option>
             }
           </select>
         </div>
@@ -242,10 +266,8 @@
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Description
                   </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600"
-                    (click)="onSort('lawyer.lastName')">
-                    Lawyer <span class="ml-1 opacity-60">{{ getSortIcon('lawyer.lastName') }}</span>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Lawyers
                   </th>
                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Tribunal
@@ -257,6 +279,9 @@
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600"
                     (click)="onSort('status.nameFr')">
                     Status <span class="ml-1 opacity-60">{{ getSortIcon('status.nameFr') }}</span>
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Priority
                   </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-600"
@@ -297,6 +322,11 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                       <span [class]="getStatusBadgeClass(caseItem.statusNameFr)">
                         {{ caseItem.statusNameFr }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span [class]="'inline-flex items-center px-2 py-1 text-xs font-medium rounded ' + getPriorityBadgeClass(caseItem.priority)">
+                        {{ caseItem.priority }}
                       </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">

@@ -7,7 +7,7 @@ import { forkJoin } from 'rxjs';
 import { CaseService } from '../../../services/case.service';
 import { ReferenceDataService } from '../../../services/reference-data.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { CaseSummary, CaseSearchParams, PageResponse } from '../../../core/models/case.model';
+import { CasePriority, CaseSummary, CaseSearchParams, PageResponse } from '../../../core/models/case.model';
 
 @Component({
   selector: 'app-case-list',
@@ -47,9 +47,18 @@ export class CaseListComponent implements OnInit, OnDestroy {
   dateTo = signal<string | null>(null);
   searchTerm = signal('');
   dateRangeError = signal<string | null>(null);
+  priority = signal<CasePriority | ''>('');
+  exportLoading = signal(false);
 
   // UI State
   filtersExpanded = signal(true);
+
+  readonly priorityOptions: { value: CasePriority; label: string; cssClass: string }[] = [
+    { value: 'URGENT', label: 'Urgent', cssClass: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' },
+    { value: 'HIGH', label: 'High', cssClass: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' },
+    { value: 'NORMAL', label: 'Normal', cssClass: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' },
+    { value: 'LOW', label: 'Low', cssClass: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+  ];
 
   // Sorting
   sortBy = signal('registrationDate');
@@ -67,6 +76,7 @@ export class CaseListComponent implements OnInit, OnDestroy {
     if (this.tribunalCode()) count++;
     if (this.lawyerId()) count++;
     if (this.statusCode()) count++;
+    if (this.priority()) count++;
     if (this.dateFrom()) count++;
     if (this.dateTo()) count++;
     if (this.searchTerm()) count++;
@@ -117,6 +127,7 @@ export class CaseListComponent implements OnInit, OnDestroy {
       tribunalCode: this.tribunalCode() || undefined,
       lawyerId: this.lawyerId() ?? undefined,
       statusCode: this.statusCode() || undefined,
+      priority: this.priority() || undefined,
       dateFrom: this.dateFrom() ?? undefined,
       dateTo: this.dateTo() ?? undefined,
       search: this.searchTerm() || undefined,
@@ -209,6 +220,44 @@ export class CaseListComponent implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
+  onPriorityChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as CasePriority | '';
+    this.priority.set(value);
+    this.page.set(0);
+    this.loadCases();
+  }
+
+  getPriorityBadgeClass(priority: CasePriority): string {
+    return this.priorityOptions.find((p) => p.value === priority)?.cssClass ?? '';
+  }
+
+  exportCases(): void {
+    this.exportLoading.set(true);
+    const params: CaseSearchParams = {
+      year: this.year() ?? undefined,
+      caseTypeCode: this.caseTypeCode() || undefined,
+      categoryCode: this.categoryCode() || undefined,
+      tribunalCode: this.tribunalCode() || undefined,
+      lawyerId: this.lawyerId() ?? undefined,
+      statusCode: this.statusCode() || undefined,
+      dateFrom: this.dateFrom() ?? undefined,
+      dateTo: this.dateTo() ?? undefined,
+      search: this.searchTerm() || undefined,
+    };
+    this.caseService.exportCases(params).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cases-export.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.exportLoading.set(false);
+      },
+      error: () => this.exportLoading.set(false),
+    });
+  }
+
   private validateDateRange() {
     const from = this.dateFrom();
     const to = this.dateTo();
@@ -243,6 +292,7 @@ export class CaseListComponent implements OnInit, OnDestroy {
     this.tribunalCode.set('');
     this.lawyerId.set(null);
     this.statusCode.set('');
+    this.priority.set('');
     this.dateFrom.set(null);
     this.dateTo.set(null);
     this.searchTerm.set('');

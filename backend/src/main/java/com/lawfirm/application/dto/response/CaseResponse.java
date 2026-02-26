@@ -1,7 +1,11 @@
 package com.lawfirm.application.dto.response;
 
+import com.lawfirm.domain.model.CaseOutcome;
+import com.lawfirm.domain.model.CasePriority;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record CaseResponse(
     Long id,
@@ -19,8 +23,16 @@ public record CaseResponse(
     TribunalResponse tribunal,
     CaseTypeResponse caseType,
     CaseCategoryResponse caseCategory,
-    LawyerResponse lawyer,
+    List<LawyerResponse> lawyers,
     CaseStatusResponse status,
+
+    CasePriority priority,
+    String opposingParty,
+    CaseOutcome outcome,
+    String outcomeNotes,
+    LocalDate initialPaymentDate,
+    Short fiscalYear,
+    CaseSummaryResponse parentCase,
 
     FinancialSummary financialSummary
 ) {}

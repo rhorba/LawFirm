@@ -28,6 +28,6 @@ public interface LawyerRepository extends JpaRepository<Lawyer, Long> {
         + "OR LOWER(l.phone) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<Lawyer> search(@Param("search") String search, Pageable pageable);
 
-    @Query("SELECT COUNT(c) FROM Case c WHERE c.lawyer.id = :lawyerId AND c.deletedAt IS NULL")
+    @Query("SELECT COUNT(c) FROM Case c JOIN c.lawyers l WHERE l.id = :lawyerId AND c.deletedAt IS NULL")
     Long countActiveCases(@Param("lawyerId") Long lawyerId);
 }

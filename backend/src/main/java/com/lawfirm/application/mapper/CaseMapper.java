@@ -2,14 +2,19 @@ package com.lawfirm.application.mapper;
 
 import com.lawfirm.application.dto.response.CaseResponse;
 import com.lawfirm.application.dto.response.CaseSummary;
+import com.lawfirm.application.dto.response.CaseSummaryResponse;
 import com.lawfirm.application.dto.response.FinancialSummary;
 import com.lawfirm.domain.model.Case;
 import com.lawfirm.domain.model.FinancialTransaction;
+import com.lawfirm.domain.model.Lawyer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", uses = {
     TribunalMapper.class,
@@ -21,17 +26,33 @@ import java.util.List;
 public interface CaseMapper {
 
     @Mapping(target = "financialSummary", expression = "java(calculateFinancialSummary(caseEntity))")
+    @Mapping(target = "lawyers", source = "lawyers")
+    @Mapping(target = "parentCase", source = "parentCase", qualifiedByName = "toCaseSummaryResponse")
     CaseResponse toResponse(Case caseEntity);
 
     @Mapping(target = "tribunalNameFr", source = "tribunal.nameFr")
     @Mapping(target = "caseTypeNameFr", source = "caseType.nameFr")
-    @Mapping(target = "lawyerName", expression = "java(caseEntity.getLawyer() != null ? caseEntity.getLawyer().getFullName() : null)")
+    @Mapping(target = "lawyerName", source = "lawyers", qualifiedByName = "toLawyerNames")
     @Mapping(target = "statusNameFr", source = "status.nameFr")
     CaseSummary toSummary(Case caseEntity);
 
     List<CaseResponse> toResponseList(List<Case> cases);
 
     List<CaseSummary> toSummaryList(List<Case> cases);
+
+    @Named("toCaseSummaryResponse")
+    default CaseSummaryResponse toCaseSummaryResponse(Case parentCase) {
+        if (parentCase == null) return null;
+        return new CaseSummaryResponse(parentCase.getId(), parentCase.getFullCaseNumber());
+    }
+
+    @Named("toLawyerNames")
+    default String toLawyerNames(Set<Lawyer> lawyers) {
+        if (lawyers == null || lawyers.isEmpty()) return null;
+        return lawyers.stream()
+            .map(l -> l.getFirstName() + " " + l.getLastName())
+            .collect(Collectors.joining(", "));
+    }
 
     default FinancialSummary calculateFinancialSummary(Case caseEntity) {
         if (caseEntity.getTransactions() == null || caseEntity.getTransactions().isEmpty()) {

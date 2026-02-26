@@ -38,9 +38,26 @@
   <!-- Form -->
   <form [formGroup]="caseForm" (ngSubmit)="onSubmit()">
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-6">
+
       <!-- Case Identification Section -->
       <div>
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Case Identification</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Case Identification</h2>
+          @if (!isEditMode()) {
+            <div class="flex gap-2">
+              <button type="button" (click)="showTemplateModal.set(true)"
+                      class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+                Use Template
+              </button>
+              <span class="text-gray-400">|</span>
+              <button type="button" (click)="saveAsTemplate()"
+                      class="text-sm text-gray-500 dark:text-gray-400 hover:underline">
+                Save as Template
+              </button>
+            </div>
+          }
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Case Type -->
           <div>
@@ -105,26 +122,50 @@
             }
           </div>
 
-          <!-- Lawyer -->
+          <!-- Priority -->
           <div>
-            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="lawyerId">
-              Lawyer <span class="text-red-500">*</span>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="priority">
+              Priority
             </label>
             <select
-              id="lawyerId"
-              formControlName="lawyerId"
+              id="priority"
+              formControlName="priority"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-              [class.border-red-500]="caseForm.get('lawyerId')?.invalid && caseForm.get('lawyerId')?.touched"
             >
-              <option [value]="null">Select lawyer</option>
-              @for (lawyer of lawyers(); track lawyer.id) {
-                <option [value]="lawyer.id">{{ lawyer.fullName }}</option>
-              }
+              <option value="URGENT">Urgent</option>
+              <option value="HIGH">High</option>
+              <option value="NORMAL">Normal</option>
+              <option value="LOW">Low</option>
             </select>
-            @if (caseForm.get('lawyerId')?.invalid && caseForm.get('lawyerId')?.touched) {
-              <p class="text-red-500 text-xs italic mt-1">Lawyer is required</p>
+          </div>
+        </div>
+
+        <!-- Lawyers Multi-Select Checklist -->
+        <div class="mt-4">
+          <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+            Lawyers <span class="text-red-500">*</span>
+          </label>
+          <div class="border border-gray-300 dark:border-gray-600 rounded-lg max-h-40 overflow-y-auto p-2 space-y-1 dark:bg-gray-700">
+            @if (lawyers().length === 0) {
+              <p class="text-sm text-gray-400 dark:text-gray-500 py-2 text-center">Loading lawyers...</p>
+            }
+            @for (lawyer of lawyers(); track lawyer.id) {
+              <label class="flex items-center gap-2 cursor-pointer px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-600">
+                <input
+                  type="checkbox"
+                  [checked]="isLawyerSelected(lawyer.id)"
+                  (change)="toggleLawyer(lawyer.id)"
+                  class="rounded border-gray-300 dark:border-gray-500"
+                />
+                <span class="text-sm text-gray-700 dark:text-gray-300">
+                  {{ lawyer.firstName }} {{ lawyer.lastName }}
+                </span>
+              </label>
             }
           </div>
+          @if (selectedLawyerIds().length === 0) {
+            <p class="text-orange-500 text-xs italic mt-1">Select at least one lawyer</p>
+          }
         </div>
       </div>
 
@@ -168,6 +209,35 @@
               <p class="text-gray-500 dark:text-gray-400 text-xs italic mt-1">Leave blank for DRAFT status</p>
             </div>
           }
+
+          <!-- Initial Payment Date -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="initialPaymentDate">
+              Initial Payment Date
+            </label>
+            <input
+              id="initialPaymentDate"
+              type="date"
+              formControlName="initialPaymentDate"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <!-- Fiscal Year -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="fiscalYear">
+              Fiscal Year
+            </label>
+            <input
+              id="fiscalYear"
+              type="number"
+              formControlName="fiscalYear"
+              min="2000"
+              max="2099"
+              placeholder="e.g. 2026"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
         </div>
       </div>
 
@@ -208,19 +278,67 @@
             <textarea
               id="matterDescription"
               formControlName="matterDescription"
-              rows="4"
+              rows="3"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline resize-none"
-              [class.border-red-500]="caseForm.get('matterDescription')?.invalid && caseForm.get('matterDescription')?.touched"
               placeholder="Enter detailed matter description (optional)..."
             ></textarea>
-            @if (caseForm.get('matterDescription')?.invalid && caseForm.get('matterDescription')?.touched) {
-              <p class="text-red-500 text-xs italic mt-1">
-                @if (caseForm.get('matterDescription')?.hasError('maxlength')) {
-                  Matter description must be less than 1000 characters
-                }
-              </p>
-            }
           </div>
+        </div>
+      </div>
+
+      <!-- Additional Info Section -->
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Additional Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Opposing Party -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="opposingParty">
+              Opposing Party
+            </label>
+            <input
+              id="opposingParty"
+              type="text"
+              formControlName="opposingParty"
+              maxlength="255"
+              placeholder="Name of the opposing party"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <!-- Outcome -->
+          <div>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="outcome">
+              Outcome
+            </label>
+            <select
+              id="outcome"
+              formControlName="outcome"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
+            >
+              <option value="">— No outcome yet —</option>
+              <option value="WON">Won</option>
+              <option value="LOST">Lost</option>
+              <option value="SETTLED">Settled</option>
+              <option value="DISMISSED">Dismissed</option>
+            </select>
+          </div>
+
+          <!-- Outcome Notes (show when outcome is selected) -->
+          @if (caseForm.get('outcome')?.value) {
+            <div class="md:col-span-2">
+              <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="outcomeNotes">
+                Outcome Notes
+              </label>
+              <textarea
+                id="outcomeNotes"
+                formControlName="outcomeNotes"
+                rows="3"
+                maxlength="1000"
+                placeholder="Additional notes about the case outcome..."
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline resize-none"
+              ></textarea>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -260,4 +378,16 @@
       </button>
     </div>
   </form>
+
+  <!-- Template Modal -->
+  @if (showTemplateModal()) {
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" (click)="showTemplateModal.set(false)">
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6" (click)="$event.stopPropagation()">
+        <app-case-templates
+          (templateSelected)="applyTemplate($event)"
+          (closed)="showTemplateModal.set(false)">
+        </app-case-templates>
+      </div>
+    </div>
+  }
 </div>

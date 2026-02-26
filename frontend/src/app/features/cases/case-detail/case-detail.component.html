@@ -17,10 +17,8 @@
       <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Error Loading Case</h3>
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ error() }}</p>
       <div class="mt-6">
-        <a
-          routerLink="/cases"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-        >
+        <a routerLink="/cases"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
           Back to Cases
         </a>
       </div>
@@ -30,15 +28,12 @@
   <!-- Case Details -->
   @else if (caseData()) {
     @let case = caseData()!;
+
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
       <div>
         <div class="flex items-center gap-3">
-          <a
-            routerLink="/cases"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            title="Back to cases"
-          >
+          <a routerLink="/cases" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Back to cases">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -46,6 +41,9 @@
           <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ case.fullCaseNumber }}</h1>
           <span [class]="getStatusBadgeClass(case.status.code) + ' inline-flex items-center px-3 py-1 rounded-full text-sm font-medium'">
             {{ case.status.nameFr }}
+          </span>
+          <span [class]="getPriorityBadgeClass(case.priority) + ' inline-flex items-center px-2 py-1 rounded text-xs font-medium'">
+            {{ case.priority }}
           </span>
         </div>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -55,24 +53,18 @@
 
       <div class="flex items-center gap-3">
         @if (canUpdate) {
-          <button
-            (click)="openStatusModal()"
-            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-          >
+          <button (click)="openStatusModal()"
+            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
             Change Status
           </button>
-          <a
-            [routerLink]="['/cases', case.id, 'edit']"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-          >
+          <a [routerLink]="['/cases', case.id, 'edit']"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
             Edit Case
           </a>
         }
         @if (canDelete) {
-          <button
-            (click)="deleteCase()"
-            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-          >
+          <button (click)="deleteCase()"
+            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
             Delete
           </button>
         }
@@ -83,6 +75,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Main Information -->
       <div class="lg:col-span-2 space-y-6">
+
         <!-- Case Details Card -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Case Details</h2>
@@ -102,19 +95,81 @@
               <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.tribunal.nameFr }}</dd>
             </div>
             <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Lawyer</dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.lawyer.fullName }}</dd>
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Year / Sequence</dt>
+              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.year }} / {{ case.sequenceNumber }}</dd>
             </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Year</dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.year }}</dd>
+
+            <!-- Lawyers (multi) -->
+            <div class="md:col-span-2">
+              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Lawyers</dt>
+              <dd class="flex flex-wrap gap-2">
+                @for (l of case.lawyers; track l.id) {
+                  <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 rounded-full text-sm font-medium">
+                    {{ l.firstName }} {{ l.lastName }}
+                  </span>
+                }
+                @if (case.lawyers.length === 0) {
+                  <span class="text-sm text-gray-400">No lawyers assigned</span>
+                }
+              </dd>
             </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Sequence Number</dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.sequenceNumber }}</dd>
-            </div>
+
+            <!-- Opposing Party -->
+            @if (case.opposingParty) {
+              <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Opposing Party</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.opposingParty }}</dd>
+              </div>
+            }
+
+            <!-- Outcome -->
+            @if (case.outcome) {
+              <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Outcome</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200 font-semibold">{{ case.outcome }}</dd>
+              </div>
+            }
+
+            <!-- Fiscal Year -->
+            @if (case.fiscalYear) {
+              <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fiscal Year</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.fiscalYear }}</dd>
+              </div>
+            }
+
+            <!-- Initial Payment Date -->
+            @if (case.initialPaymentDate) {
+              <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Initial Payment</dt>
+                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">
+                  {{ case.initialPaymentDate | date:'dd/MM/yyyy' }}
+                </dd>
+              </div>
+            }
+
+            <!-- Parent Case -->
+            @if (case.parentCase) {
+              <div>
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Parent Case</dt>
+                <dd class="mt-1">
+                  <a [routerLink]="['/cases', case.parentCase.id]"
+                    class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                    {{ case.parentCase.fullCaseNumber }}
+                  </a>
+                </dd>
+              </div>
+            }
           </dl>
         </div>
+
+        <!-- Outcome Notes -->
+        @if (case.outcomeNotes) {
+          <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Outcome Notes</h2>
+            <p class="text-sm text-gray-900 dark:text-gray-200 whitespace-pre-wrap">{{ case.outcomeNotes }}</p>
+          </div>
+        }
 
         <!-- Description Card -->
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
@@ -133,23 +188,106 @@
           </div>
         </div>
 
-        <!-- Audit Information -->
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Audit Information</h2>
-          <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created At</dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Updated</dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.updatedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
-            </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Version</dt>
-              <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.version }}</dd>
-            </div>
-          </dl>
+        <!-- Tabs: Related Cases & History -->
+        <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+          <!-- Tab Navigation -->
+          <div class="border-b border-gray-200 dark:border-gray-700 px-6">
+            <nav class="flex gap-0 -mb-px">
+              <button
+                (click)="activeTab.set('details')"
+                [class.border-indigo-500]="activeTab() === 'details'"
+                [class.text-indigo-600]="activeTab() === 'details'"
+                [class.dark:text-indigo-400]="activeTab() === 'details'"
+                [class.border-transparent]="activeTab() !== 'details'"
+                [class.text-gray-500]="activeTab() !== 'details'"
+                class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                Audit Info
+              </button>
+              <button
+                (click)="activeTab.set('children')"
+                [class.border-indigo-500]="activeTab() === 'children'"
+                [class.text-indigo-600]="activeTab() === 'children'"
+                [class.dark:text-indigo-400]="activeTab() === 'children'"
+                [class.border-transparent]="activeTab() !== 'children'"
+                [class.text-gray-500]="activeTab() !== 'children'"
+                class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                Related Cases ({{ children().length }})
+              </button>
+              <button
+                (click)="activeTab.set('history')"
+                [class.border-indigo-500]="activeTab() === 'history'"
+                [class.text-indigo-600]="activeTab() === 'history'"
+                [class.dark:text-indigo-400]="activeTab() === 'history'"
+                [class.border-transparent]="activeTab() !== 'history'"
+                [class.text-gray-500]="activeTab() !== 'history'"
+                class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                History ({{ history().length }})
+              </button>
+            </nav>
+          </div>
+
+          <div class="p-6">
+            <!-- Audit Info Tab -->
+            @if (activeTab() === 'details') {
+              <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Created At</dt>
+                  <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.createdAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Last Updated</dt>
+                  <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.updatedAt | date:'dd/MM/yyyy HH:mm' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Version</dt>
+                  <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">{{ case.version }}</dd>
+                </div>
+              </dl>
+            }
+
+            <!-- Children Tab -->
+            @if (activeTab() === 'children') {
+              @if (children().length === 0) {
+                <p class="text-sm text-gray-400 dark:text-gray-500 text-center py-4">No linked sub-cases.</p>
+              }
+              <div class="space-y-2">
+                @for (child of children(); track child.id) {
+                  <a [routerLink]="['/cases', child.id]"
+                    class="flex items-center p-3 border border-gray-100 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    <span class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ child.fullCaseNumber }}</span>
+                  </a>
+                }
+              </div>
+            }
+
+            <!-- History Tab -->
+            @if (activeTab() === 'history') {
+              @if (history().length === 0) {
+                <p class="text-sm text-gray-400 dark:text-gray-500 text-center py-4">No history recorded yet.</p>
+              }
+              <div class="space-y-3">
+                @for (entry of history(); track entry.id) {
+                  <div class="flex gap-3 p-3 border border-gray-100 dark:border-gray-700 rounded-lg">
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-gray-900 dark:text-white">{{ entry.action }}</p>
+                      <p class="text-xs text-gray-500 dark:text-gray-400">
+                        by {{ entry.username }} &middot; {{ entry.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                      </p>
+                      @if (parseChangedFields(entry.metadata).length > 0) {
+                        <div class="mt-1 flex flex-wrap gap-1">
+                          @for (field of parseChangedFields(entry.metadata); track field) {
+                            <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-xs rounded text-gray-600 dark:text-gray-300">
+                              {{ field }}
+                            </span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
         </div>
       </div>
 
@@ -188,20 +326,16 @@
           <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
           <div class="space-y-3">
             @if (canUpdate) {
-              <button
-                (click)="openStatusModal()"
-                class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex items-center gap-2"
-              >
+              <button (click)="openStatusModal()"
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Change Status
               </button>
-              <a
-                [routerLink]="['/cases', case.id, 'edit']"
-                class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex items-center gap-2"
-              >
+              <a [routerLink]="['/cases', case.id, 'edit']"
+                class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -209,10 +343,8 @@
                 Edit Case
               </a>
             }
-            <a
-              routerLink="/cases"
-              class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex items-center gap-2"
-            >
+            <a routerLink="/cases"
+              class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors flex items-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>

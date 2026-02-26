@@ -1,11 +1,14 @@
 package com.lawfirm.application.dto.request;
 
+import com.lawfirm.domain.model.CaseOutcome;
+import com.lawfirm.domain.model.CasePriority;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 public record CreateCaseRequest(
     @NotBlank(message = "Case type code is required")
@@ -19,10 +22,9 @@ public record CreateCaseRequest(
     @Size(max = 50)
     String tribunalCode,
 
-    @NotNull(message = "Lawyer ID is required")
-    Long lawyerId,
+    @NotEmpty(message = "At least one lawyer must be assigned")
+    Set<Long> lawyerIds,
 
-    @NotNull(message = "Registration date is required")
     @PastOrPresent(message = "Registration date cannot be in the future")
     LocalDate registrationDate,
 
@@ -34,5 +36,21 @@ public record CreateCaseRequest(
     String matterDescription,
 
     @Size(max = 50)
-    String initialStatusCode
+    String initialStatusCode,
+
+    CasePriority priority,
+
+    @Size(max = 255)
+    String opposingParty,
+
+    CaseOutcome outcome,
+
+    @Size(max = 1000)
+    String outcomeNotes,
+
+    LocalDate initialPaymentDate,
+
+    Short fiscalYear,
+
+    Long parentCaseId
 ) {}
