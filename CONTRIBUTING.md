@@ -94,7 +94,7 @@ See [README.md](README.md) for detailed setup instructions.
 - **Legal Terminology**: Consistent use of legal terms across UI
 
 ### Legal Domain Conventions
-- **Case Numbering**: Follow format: `YEAR-CATEGORY-SEQUENCE` (e.g., 2024-CIV-00123)
+- **Case Numbering**: Follow format: `TYPE/TRIBUNAL/YEAR/SEQUENCE` (e.g., `CIVIL/CASA/2024/00123`)
 - **Financial Precision**: Use BigDecimal for all monetary values
 - **Date Handling**: Respect court deadlines and fiscal years
 - **Confidentiality**: All client data must be protected

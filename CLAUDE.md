@@ -34,124 +34,62 @@ Focus: Type-safety, audit trails, bilingual support (French/Arabic), RBAC securi
 
 ## Implementation Status
 
-### 🚀 Foundation Phase - Complete
+### ✅ Phase 1 — Foundation (Complete)
 
-Core infrastructure implementation completed. Authentication, authorization, user management, and audit logging are production-ready.
+Core infrastructure: authentication, authorization, user management, group management, audit logging.
 
-### 📋 Law Firm Domain - In Active Development
+### ✅ Phase 2 — Core Legal Domain (Complete)
 
-**✅ COMPLETED (Production Ready):**
-- Case/Dossier Management (full CRUD, advanced search, status workflows)
-- Lawyer Management (full CRUD, search, pagination, bulk ops, active/inactive tracking, case assignment)
-- Client Management (full CRUD, search, pagination, CIN uniqueness, gender, client type, case linking)
-- Reference Data (tribunals, case types, categories, statuses - all bilingual)
-- Financial Infrastructure (entities, repositories, summary aggregation)
+All core legal operations (cases, lawyers, clients, reference data) are production-ready.
 
-**🔄 NEXT UP:**
-- Financial Ledger (expense/revenue tracking per case)
+### 🔄 Phase 3 — Financial Ledger (Next Up)
 
-See detailed implementation status and feature roadmap below.
+Backend entities/repositories exist. **UI not yet implemented.**
 
-### 🎯 Law Firm Feature Roadmap
+### ⏳ Phase 4+ — Remaining Features (Not Started)
 
-**Priority 1: Core Legal Operations**
-1. Case/Dossier Management - Full lifecycle tracking with unique numbering
-2. Client Management - Comprehensive client profiles with conflict checking
-3. Lawyer Management - Attorney profiles with CRUD, search, active/inactive tracking, and case assignment
-4. Reference Data - Tribunals (bilingual), Case Types, Court rules
+Financial UI → Time Tracking → Documents → Tasks → Calendar → Reporting → Communication
 
-**Priority 2: Financial Management**
-5. Financial Ledger - Case-based expense/revenue tracking
-6. Time Tracking & Billing - Billable hours, invoicing, retainer management
-7. Payment Processing - Multiple payment methods, trust accounting
+---
 
-**Priority 3: Document & Task Management**
-8. Document Management - Secure storage, versioning, templates, OCR
-9. Deadline & Task Management - Court dates, filing deadlines, task assignment
-10. Calendar & Scheduling - Multi-lawyer scheduling, conflict detection
+### 🎯 Feature Status
 
-**Priority 4: Communication & Reporting**
-11. Communication Management - Email integration, client portal, SMS notifications
-12. Reporting & Analytics - Client statistics, lawyer performance, financial reports, KPI dashboard
-13. Notifications & Alerts - Deadline reminders, payment alerts, task notifications
+| Feature | Backend | Frontend | Notes |
+|---------|---------|----------|-------|
+| Authentication (JWT) | ✅ | ✅ | 15min/30day tokens, remember-me |
+| User Management | ✅ | ✅ | Full CRUD, pagination |
+| User Profiles | ✅ | ✅ | Extended profile info |
+| Group Management | ✅ | ✅ | Role assignment, bulk user ops |
+| Audit Logging | ✅ | ✅ | Request/response + entity trail |
+| Case Management | ✅ | ✅ | Full CRUD, status workflows, filters |
+| Lawyer Management | ✅ | ✅ | Full CRUD, pagination, bulk deactivate |
+| Client Management | ✅ | ✅ | Full CRUD, CIN uniqueness, case linking |
+| Reference Data | ✅ | ✅ | Bilingual tribunals, types, statuses |
+| Financial Infrastructure | ✅ | ❌ | Entities done, UI not started |
+| Financial Ledger UI | ❌ | ❌ | **Next priority** |
+| Time Tracking & Billing | ❌ | ❌ | Planned |
+| Document Management | ❌ | ❌ | Planned |
+| Deadline & Task Management | ❌ | ❌ | Planned |
+| Calendar & Scheduling | ❌ | ❌ | Planned |
+| Reporting & Analytics | ❌ | ❌ | Planned |
+| Communication Management | ❌ | ❌ | Planned |
+| Client Conflict Checking | ❌ | ❌ | Planned |
+| RTL / Arabic UI | ❌ | ❌ | Planned |
+| 2FA / Advanced Security | ❌ | ❌ | Planned |
 
-**Priority 5: Advanced Features**
-14. Data Import/Export - CSV/PDF export, bulk import, automated backups
-15. Internationalization - Multi-language (French/Arabic/English), RTL support
-16. Mobile Access - Responsive design, mobile app (planned), offline capability
-17. Audit & Compliance - Complete modification history, regulatory compliance tracking
-18. Conflict Management - Conflict checking engine, waiver documentation
-19. Advanced Security - 2FA, IP whitelisting, data encryption
-20. Performance Optimization - Caching, lazy loading, query optimization
-21. Technical Integrations - Calendar sync, e-signature, third-party APIs
+### 📊 Codebase Metrics (Current)
 
-### ✅ RECENTLY COMPLETED - Case & Lawyer Management
+**Backend:** 143 Java files
+- 21 domain entities, 18 repositories, 39 DTOs, 14 MapStruct mappers
+- 15 services, 14 controllers, 9 custom exceptions
+- 45 Flyway migrations (V1–V45)
 
-**Backend (62 Java files, 15 migrations):**
-- 8 Domain entities (Case, Lawyer, Tribunal, CaseType, CaseCategory, CaseStatus, CaseSequence, FinancialTransaction)
-- 13 DTOs (5 request, 8 response) with Bean Validation
-- 6 MapStruct mappers for entity-DTO conversion
-- 5 services with business logic (CaseService, LawyerService, TribunalService, CaseSequenceService, CaseNumberGenerator)
-- 3 REST controllers with 14 endpoints (CaseController, LawyerController, TribunalController)
-- 10 JPA repositories with custom queries and specifications
-- 2 custom exceptions (InvalidCaseNumberFormatException, InvalidStatusTransitionException)
-- 15 Flyway migrations (V17-V31)
-  - Tribunals table + 9 seeded tribunals (bilingual FR/AR)
-  - Case types table + 5 seeded types (CIVIL, PENAL, COMMERCIAL, SOCIAL, ADMIN)
-  - Case categories table + 17 seeded categories
-  - Case statuses table + 7 seeded statuses (DRAFT → CLOSED)
-  - Case type-status mapping (allowed transitions)
-  - Lawyers table with tax ID and contact info
-  - Case sequences table for auto-numbering
-  - Cases table with all relationships
-  - Financial transactions table
-  - 8 new permissions (CASE_*, LAWYER_*)
-- Case number auto-generation: {TYPE}/{TRIBUNAL}/{YEAR}/{SEQUENCE}
-- Status workflow validation (allowed transitions per case type)
-- Financial summary aggregation (payments, expenses, balance)
+**Frontend:** Angular 18 standalone
+- 23 components, 15 API services, 7 TypeScript models
+- 1 auth guard, 2 HTTP interceptors
+- All routes lazy-loaded
 
-**Frontend (17 Angular components, 9 services):**
-- Case List component (378 lines TS + 380 lines HTML)
-  - Advanced filtering: year, type, category, tribunal, lawyer, status, date range, search
-  - Cascading category dropdown (filtered by selected case type)
-  - Debounced search (300ms), pagination (20/page), bulk operations
-  - Color-coded status badges (7 statuses)
-  - Permission-based UI (CASE_READ, CASE_CREATE, CASE_UPDATE, CASE_DELETE)
-- Case Detail component (120 lines TS + 220 lines HTML)
-  - Full case information display
-  - Financial summary card (payments, expenses, balance)
-  - Audit information (created/updated timestamps, version)
-  - Quick actions sidebar (change status, edit, delete)
-- Case Form component (178 lines TS + 222 lines HTML)
-  - Unified create/edit form
-  - Cascading dropdowns (type filters categories)
-  - Form validation with real-time feedback
-  - Initial status selection (create mode)
-  - Textarea inputs with character limits
-- Change Status Modal component (102 lines TS + 96 lines HTML)
-  - Load available statuses for case type
-  - Optional reason field (500 char limit)
-  - Escape key to close
-- Lawyer List component (205 lines TS + 281 lines HTML)
-  - Search, pagination, bulk operations
-  - Active/Inactive status tracking
-  - Create/Edit modal form
-- Lawyer Form component (106 lines TS + 171 lines HTML)
-  - Modal form with validation
-  - Required: firstName, lastName, taxId
-  - Optional: email, phone
-- 9 TypeScript services (Case, Lawyer, Tribunal, CaseType, CaseCategory, CaseStatus, ReferenceData)
-- Global reference data caching (APP_INITIALIZER loads on startup)
-- 3 new routes: /cases, /cases/:id, /cases/:id/edit, /cases/new, /lawyers
-- Dark mode support across all components
-- Lazy-loaded routes (5.06 kB compressed per route)
-
-**Build Metrics:**
-- Production bundle: 354.45 kB initial / 97.28 kB compressed
-- Case list chunk: 20.53 kB raw / 4.81 kB compressed
-- Case detail chunk: 18.40 kB raw / 4.77 kB compressed
-- Case form chunk: 15.74 kB raw / 3.64 kB compressed
-- Lawyer list chunk: 25.72 kB raw / 5.64 kB compressed
+**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions
 
 ---
 
@@ -323,18 +261,25 @@ docker-compose -f docker-compose.prod.yml up --build
 - Username: `admin`
 - Password: `admin123`
 
-### 📊 Default Permissions
+### 📊 Seeded Permissions (26+)
 
-The system includes 13 pre-configured permissions:
-- USER_READ, USER_CREATE, USER_UPDATE, USER_DELETE, USER_MANAGE
-- ROLE_READ, ROLE_CREATE, ROLE_UPDATE, ROLE_DELETE, ROLE_MANAGE
-- PERMISSION_READ, PERMISSION_MANAGE
-- SYSTEM_MANAGE
+**User & Role Management (13):**
+USER_READ, USER_CREATE, USER_UPDATE, USER_DELETE, USER_MANAGE, ROLE_READ, ROLE_CREATE, ROLE_UPDATE, ROLE_DELETE, ROLE_MANAGE, PERMISSION_READ, PERMISSION_MANAGE, SYSTEM_MANAGE
+
+**Legal Domain (12):**
+CASE_READ, CASE_CREATE, CASE_UPDATE, CASE_DELETE, LAWYER_READ, LAWYER_CREATE, LAWYER_UPDATE, LAWYER_DELETE, CLIENT_READ, CLIENT_CREATE, CLIENT_UPDATE, CLIENT_DELETE
+
+**Other (1+):** USER_ROLE_READ
 
 **Role Assignments:**
 - ADMIN: All permissions
 - MODERATOR: USER_* + ROLE_READ + PERMISSION_READ
 - USER: USER_READ only
+
+**Seeded test accounts:**
+- `admin` / `admin123` — System Administrator
+- `test_user` / `test123` — Standard user
+- `test_viewer` / `viewer123` — View-only user
 
 ### 🔧 Environment Variables
 
@@ -393,26 +338,30 @@ LawFirm/
 │   │       ├── lawyer/                # Lawyer management endpoints
 │   │       └── financial/             # Financial endpoints
 │   ├── src/main/resources/
-│   │   ├── db/migration/              # Flyway migrations (V1-V16+)
-│   │   ├── templates/                 # Email/document templates
+│   │   ├── db/migration/              # Flyway migrations (V1-V45)
 │   │   └── application*.yml           # Configuration
 │   └── pom.xml
 ├── frontend/                          # Angular 18 Standalone
 │   ├── src/app/
 │   │   ├── core/                      # Services, Guards, Interceptors
 │   │   ├── features/                  # Feature modules
-│   │   │   ├── auth/                  # Login, registration
-│   │   │   ├── dashboard/             # KPI dashboard
-│   │   │   ├── cases/                 # Case management
-│   │   │   ├── clients/               # Client management
-│   │   │   ├── lawyers/               # Lawyer management
-│   │   │   ├── financial/             # Financial tracking
-│   │   │   ├── documents/             # Document management
-│   │   │   ├── tasks/                 # Task & deadline management
-│   │   │   ├── calendar/              # Calendar & scheduling
-│   │   │   ├── reports/               # Reporting & analytics
-│   │   │   └── admin/                 # System administration
-│   │   └── shared/                    # Shared components, pipes, directives
+│   │   │   ├── auth/                  # Login, registration ✅
+│   │   │   ├── dashboard/             # Dashboard ✅
+│   │   │   ├── layout/                # Layout, Header, Sidebar ✅
+│   │   │   ├── cases/                 # Case management ✅
+│   │   │   ├── clients/               # Client management ✅
+│   │   │   ├── lawyers/               # Lawyer management ✅
+│   │   │   ├── users/                 # User management ✅
+│   │   │   ├── groups/                # Group management ✅
+│   │   │   ├── audit-logs/            # Audit log viewer ✅
+│   │   │   ├── profile/               # User profile ✅
+│   │   │   ├── settings/              # App settings ✅
+│   │   │   ├── financial/             # ⏳ Not implemented
+│   │   │   ├── documents/             # ⏳ Not implemented
+│   │   │   ├── tasks/                 # ⏳ Not implemented
+│   │   │   ├── calendar/              # ⏳ Not implemented
+│   │   │   └── reports/               # ⏳ Not implemented
+│   │   └── services/                  # 15 API integration services
 │   ├── angular.json
 │   ├── tailwind.config.js
 │   └── package.json
