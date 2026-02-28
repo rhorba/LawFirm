@@ -42,12 +42,13 @@ Core infrastructure implementation completed. Authentication, authorization, use
 
 **✅ COMPLETED (Production Ready):**
 - Case/Dossier Management (full CRUD, advanced search, status workflows)
-- Lawyer Management (full CRUD, search, active/inactive tracking)
+- Lawyer Management (full CRUD, search, pagination, bulk ops, active/inactive tracking, case assignment)
+- Client Management (full CRUD, search, pagination, CIN uniqueness, gender, client type, case linking)
 - Reference Data (tribunals, case types, categories, statuses - all bilingual)
 - Financial Infrastructure (entities, repositories, summary aggregation)
 
 **🔄 NEXT UP:**
-- Client Management (profiles, relationships, conflict checking)
+- Financial Ledger (expense/revenue tracking per case)
 
 See detailed implementation status and feature roadmap below.
 
@@ -56,7 +57,7 @@ See detailed implementation status and feature roadmap below.
 **Priority 1: Core Legal Operations**
 1. Case/Dossier Management - Full lifecycle tracking with unique numbering
 2. Client Management - Comprehensive client profiles with conflict checking
-3. Lawyer Management - Attorney profiles with specializations and workload tracking
+3. Lawyer Management - Attorney profiles with CRUD, search, active/inactive tracking, and case assignment
 4. Reference Data - Tribunals (bilingual), Case Types, Court rules
 
 **Priority 2: Financial Management**

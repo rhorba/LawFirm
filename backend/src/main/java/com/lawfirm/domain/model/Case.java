@@ -103,6 +103,10 @@ public class Case extends BaseEntity {
     @JoinColumn(name = "parent_case_id")
     private Case parentCase;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

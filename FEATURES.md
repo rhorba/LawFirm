@@ -73,29 +73,22 @@ This document provides a comprehensive breakdown of all planned features for the
 ## 3. LAWYER MANAGEMENT
 
 ### Core Capabilities
-- Full CRUD operations for lawyers
-- Lawyer information: name, surname, tax ID, phone, email, address
-- Assign lawyers to multiple cases
-- View lawyer workload (cases assigned)
-- Identify lawyers with active vs no cases
-- Search by name
-- Lawyer statistics (by tribunal, by case count)
-- Top lawyers by case count
-
-### Advanced Features
-- Bar association credentials and status
-- Specialization areas (Criminal, Civil, Corporate, etc.)
-- Availability calendar integration
-- Practice permissions by tribunal/court
-- Performance metrics (win rate, client satisfaction)
-- Continuing legal education (CLE) tracking
+- Full CRUD operations for lawyers (create, read, update, deactivate, reactivate)
+- Lawyer information: first name, last name, tax ID, phone, email
+- Tax ID uniqueness validation
+- Soft delete via active/inactive flag
+- Assign lawyers to multiple cases (many-to-many relationship)
+- View lawyer workload (active case count per lawyer)
+- Identify active vs inactive lawyers
+- Full-text search by name, email, tax ID, phone (debounced 300ms)
+- Pagination with configurable page sizes (10, 20, 50, 100)
+- Bulk deactivation of selected lawyers
 
 ### Business Rules
-- Bar association number must be unique and valid
-- Lawyers can only be assigned to cases in tribunals where authorized
-- Active bar association status required for case assignment
-- Workload limits can be configured per lawyer
-- Specialization must match case category (optional enforcement)
+- Tax ID must be unique when provided
+- Lawyers are soft-deleted (deactivated), never hard-deleted
+- Case count reflects only active (non-deleted) cases
+- RBAC permissions: LAWYER_READ, LAWYER_CREATE, LAWYER_UPDATE, LAWYER_DELETE, LAWYER_MANAGE
 
 ---
 

@@ -26,6 +26,9 @@ frontend/.env.local
 .DS_Store
 Thumbs.db
 
+# Windows crash dumps
+*.stackdump
+
 # Env
 .env
 .env.local

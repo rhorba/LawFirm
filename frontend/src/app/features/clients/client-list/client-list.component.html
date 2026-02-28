@@ -1,0 +1,336 @@
+<!-- client-list.component.html -->
+<div class="p-6 space-y-4">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Clients</h1>
+    <div class="flex gap-2">
+      @if (authService.hasPermission('CLIENT_READ')) {
+        <button (click)="exportClients()" [disabled]="exportLoading()"
+          class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700
+                 disabled:opacity-50 flex items-center gap-2">
+          <span class="material-icons text-base">download</span>
+          {{ exportLoading() ? 'Exporting...' : 'Export' }}
+        </button>
+      }
+      @if (authService.hasPermission('CLIENT_CREATE')) {
+        <button (click)="openCreate()"
+          class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium
+                 rounded-lg flex items-center gap-2">
+          <span class="material-icons text-base">add</span>
+          New Client
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+    <div class="flex flex-col sm:flex-row gap-3">
+      <!-- Search -->
+      <div class="flex-1 relative">
+        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base">search</span>
+        <input type="text" placeholder="Search by name, CIN, email..."
+          [value]="search()"
+          (input)="onSearchChange($any($event.target).value)"
+          class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                 bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none" />
+      </div>
+      <!-- Type filter -->
+      <select [value]="typeFilter()" (change)="onTypeFilterChange($any($event.target).value)"
+        class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+               bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+        <option value="">All Types</option>
+        @for (t of typeOptions; track t.value) {
+          <option [value]="t.value">{{ t.label }}</option>
+        }
+      </select>
+      @if (search() || typeFilter()) {
+        <button (click)="clearFilters()"
+          class="px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+          Clear
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    @if (loading()) {
+      <div class="flex justify-center items-center h-40">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    } @else if (error()) {
+      <div class="p-6 text-center text-red-600 dark:text-red-400">{{ error() }}</div>
+    } @else if (!clients()?.content?.length) {
+      <div class="p-12 text-center text-gray-500 dark:text-gray-400">
+        <span class="material-icons text-5xl mb-3 block">people_outline</span>
+        No clients found.
+      </div>
+    } @else {
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Full Name</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Type</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">CIN / Tax No.</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300">Contact</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Cases</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-300">Status</th>
+              <th class="px-4 py-3 text-right font-semibold text-gray-700 dark:text-gray-300">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            @for (client of clients()!.content; track client.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ client.fullName }}</td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-0.5 text-xs font-semibold rounded-full" [class]="typeBadgeClass(client.clientType)">
+                    {{ client.clientType }}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                  {{ client.cin || client.taxNumber || '—' }}
+                </td>
+                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                  <div>{{ client.phone || '' }}</div>
+                  <div class="text-xs text-gray-400">{{ client.email || '' }}</div>
+                </td>
+                <td class="px-4 py-3 text-center text-gray-600 dark:text-gray-400">{{ client.caseCount }}</td>
+                <td class="px-4 py-3 text-center">
+                  @if (client.active) {
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">Active</span>
+                  } @else {
+                    <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">Inactive</span>
+                  }
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex justify-end gap-1">
+                    @if (authService.hasPermission('CLIENT_UPDATE')) {
+                      <button (click)="openEdit(client.id)"
+                        class="p-1.5 text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 rounded">
+                        <span class="material-icons text-base">edit</span>
+                      </button>
+                    }
+                    @if (authService.hasPermission('CLIENT_DELETE') && client.active) {
+                      <button (click)="deactivateClient(client.id)"
+                        class="p-1.5 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 rounded">
+                        <span class="material-icons text-base">person_off</span>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+        <span class="text-xs text-gray-500 dark:text-gray-400">
+          {{ clients()!.totalElements }} client{{ clients()!.totalElements !== 1 ? 's' : '' }}
+          — page {{ page() + 1 }} of {{ clients()!.totalPages }}
+        </span>
+        <div class="flex items-center gap-2">
+          <button (click)="onPageChange(0)" [disabled]="page() === 0"
+            class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded
+                   disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700
+                   text-gray-700 dark:text-gray-300">
+            «
+          </button>
+          <button (click)="onPageChange(page() - 1)" [disabled]="page() === 0"
+            class="px-3 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded
+                   disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700
+                   text-gray-700 dark:text-gray-300">
+            Prev
+          </button>
+          <button (click)="onPageChange(page() + 1)" [disabled]="page() + 1 >= clients()!.totalPages"
+            class="px-3 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded
+                   disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700
+                   text-gray-700 dark:text-gray-300">
+            Next
+          </button>
+          <button (click)="onPageChange(clients()!.totalPages - 1)" [disabled]="page() + 1 >= clients()!.totalPages"
+            class="px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded
+                   disabled:opacity-40 hover:bg-gray-50 dark:hover:bg-gray-700
+                   text-gray-700 dark:text-gray-300">
+            »
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ── Modal ──────────────────────────────────────────────────────────────── -->
+@if (showModal()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+       (click)="closeModal()" (keydown.escape)="closeModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+         (click)="$event.stopPropagation()">
+
+      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+          {{ editingClient() ? 'Edit Client' : 'New Client' }}
+        </h2>
+        <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      @if (modalLoading()) {
+        <div class="flex justify-center p-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      } @else {
+        <div class="p-6 space-y-4">
+          @if (modalError()) {
+            <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
+              {{ modalError() }}
+            </div>
+          }
+
+          <!-- Client Type (create-only) -->
+          @if (!editingClient()) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Client Type *</label>
+              <select [value]="form().clientType" (change)="onTypeChange($any($event.target).value)"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                @for (t of typeOptions; track t.value) {
+                  <option [value]="t.value">{{ t.label }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <!-- INDIVIDUAL fields -->
+          @if (isIndividual()) {
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
+                <input type="text" [value]="form().firstName || ''"
+                  (input)="updateField('firstName', $any($event.target).value)"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name *</label>
+                <input type="text" [value]="form().lastName || ''"
+                  (input)="updateField('lastName', $any($event.target).value)"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">CIN *</label>
+                <input type="text" [value]="form().cin || ''"
+                  (input)="updateField('cin', $any($event.target).value)"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+                <select [value]="form().gender || ''" (change)="updateField('gender', $any($event.target).value)"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                  <option value="">—</option>
+                  @for (g of genderOptions; track g.value) {
+                    <option [value]="g.value">{{ g.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date of Birth</label>
+              <input type="date" [value]="form().dateOfBirth || ''"
+                (input)="updateField('dateOfBirth', $any($event.target).value)"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+            </div>
+          }
+
+          <!-- CORPORATE / GOVERNMENT fields -->
+          @if (isCorporate()) {
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Company Name *</label>
+              <input type="text" [value]="form().companyName || ''"
+                (input)="updateField('companyName', $any($event.target).value)"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              @if (showTaxNumber()) {
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tax Number</label>
+                  <input type="text" [value]="form().taxNumber || ''"
+                    (input)="updateField('taxNumber', $any($event.target).value)"
+                    class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+                </div>
+              }
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
+                <input type="text" [value]="form().firstName || ''"
+                  (input)="updateField('firstName', $any($event.target).value)"
+                  placeholder="Contact person"
+                  class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+              </div>
+            </div>
+          }
+
+          <!-- Common fields -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+              <input type="tel" [value]="form().phone || ''"
+                (input)="updateField('phone', $any($event.target).value)"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <input type="email" [value]="form().email || ''"
+                (input)="updateField('email', $any($event.target).value)"
+                class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Address</label>
+            <input type="text" [value]="form().address || ''"
+              (input)="updateField('address', $any($event.target).value)"
+              class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+            <textarea rows="2" [value]="form().notes || ''"
+              (input)="updateField('notes', $any($event.target).value)"
+              class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg
+                     bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 px-6 pb-6">
+          <button (click)="closeModal()"
+            class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600
+                   rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+            Cancel
+          </button>
+          <button (click)="saveClient()" [disabled]="modalLoading()"
+            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700
+                   rounded-lg disabled:opacity-50">
+            {{ editingClient() ? 'Save Changes' : 'Create Client' }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
