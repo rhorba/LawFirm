@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @Builder
@@ -20,5 +21,7 @@ public class AuditLogResponse {
     private String resourceId;
     private String metadata;
     private String ipAddress;
+    private Map<String, Object> oldValues;
+    private Map<String, Object> newValues;
     private LocalDateTime createdAt;
 }

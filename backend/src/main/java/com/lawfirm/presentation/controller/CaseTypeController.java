@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -26,12 +27,17 @@ public class CaseTypeController {
 
     @GetMapping
     @Transactional(readOnly = true)
-    @Operation(summary = "Get all case types (public reference data)")
-    public ResponseEntity<List<CaseTypeResponse>> getAllCaseTypes() {
-        List<CaseTypeResponse> caseTypes = caseTypeRepository.findAll()
-                .stream()
+    @Operation(summary = "Get active case types (supports optional ?search= filter)")
+    public ResponseEntity<List<CaseTypeResponse>> getAllCaseTypes(
+            @RequestParam(required = false) String search) {
+        return ResponseEntity.ok(
+            caseTypeRepository.findAllByActiveTrue().stream()
+                .filter(ct -> search == null || search.isBlank()
+                    || ct.getNameFr().toLowerCase().contains(search.toLowerCase())
+                    || ct.getNameAr().contains(search)
+                    || ct.getCode().toLowerCase().contains(search.toLowerCase()))
                 .map(caseTypeMapper::toResponse)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(caseTypes);
+                .collect(Collectors.toList())
+        );
     }
 }

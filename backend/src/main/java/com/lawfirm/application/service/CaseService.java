@@ -12,10 +12,12 @@ import com.lawfirm.domain.model.CaseCategory;
 import com.lawfirm.domain.model.CasePriority;
 import com.lawfirm.domain.model.CaseStatus;
 import com.lawfirm.domain.model.CaseType;
+import com.lawfirm.domain.model.Client;
 import com.lawfirm.domain.model.Lawyer;
 import com.lawfirm.domain.model.Tribunal;
 import com.lawfirm.domain.repository.CaseCategoryRepository;
 import com.lawfirm.domain.repository.CaseRepository;
+import com.lawfirm.domain.repository.ClientRepository;
 import com.lawfirm.domain.repository.CaseSpecification;
 import com.lawfirm.domain.repository.CaseStatusRepository;
 import com.lawfirm.domain.repository.CaseTypeRepository;
@@ -54,6 +56,7 @@ public class CaseService {
     private final CaseCategoryRepository caseCategoryRepository;
     private final LawyerRepository lawyerRepository;
     private final CaseStatusRepository caseStatusRepository;
+    private final ClientRepository clientRepository;
     private final CaseSequenceService caseSequenceService;
     private final CaseNumberGenerator caseNumberGenerator;
     private final CaseMapper caseMapper;
@@ -124,6 +127,12 @@ public class CaseService {
             .fiscalYear(request.fiscalYear())
             .parentCase(parentCase)
             .build();
+
+        if (request.clientId() != null) {
+            Client client = clientRepository.findById(request.clientId())
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + request.clientId()));
+            caseEntity.setClient(client);
+        }
 
         caseEntity = caseRepository.save(caseEntity);
 
@@ -208,6 +217,7 @@ public class CaseService {
         Case caseEntity = caseRepository.findByIdWithDetails(id)
             .orElseThrow(() -> new ResourceNotFoundException("Case not found with id: " + id));
 
+        CaseResponse beforeSnapshot = caseMapper.toResponse(caseEntity);
         List<String> changedFields = new ArrayList<>();
 
         if (request.tribunalCode() != null) {
@@ -288,13 +298,38 @@ public class CaseService {
             }
         }
 
+        if (request.clientId() != null) {
+            Long currentClientId = caseEntity.getClient() != null ? caseEntity.getClient().getId() : null;
+            if (!request.clientId().equals(currentClientId)) {
+                Client client = clientRepository.findById(request.clientId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + request.clientId()));
+                changedFields.add("client");
+                caseEntity.setClient(client);
+            }
+        }
+
         caseEntity = caseRepository.save(caseEntity);
 
         if (!changedFields.isEmpty()) {
-            auditLogService.log("CASE", id, "CASE_UPDATED", changedFields, getCurrentUsername());
+            CaseResponse afterSnapshot = caseMapper.toResponse(caseEntity);
+            auditLogService.log("CASE", id, "CASE_UPDATED", beforeSnapshot, afterSnapshot, getCurrentUsername());
         }
 
         return caseMapper.toResponse(caseEntity);
+    }
+
+    @Transactional
+    public CaseResponse assignClient(Long caseId, Long clientId) {
+        Case caseEntity = caseRepository.findById(caseId)
+            .orElseThrow(() -> new ResourceNotFoundException("Case not found with id: " + caseId));
+        if (clientId != null) {
+            Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + clientId));
+            caseEntity.setClient(client);
+        } else {
+            caseEntity.setClient(null);
+        }
+        return caseMapper.toResponse(caseRepository.save(caseEntity));
     }
 
     @Transactional

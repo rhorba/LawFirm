@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
+  AssignClientRequest,
   AuditLogResponse,
   CaseResponse,
   CaseSearchParams,
@@ -80,6 +81,10 @@ export class CaseService {
 
   deleteCase(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  assignClient(caseId: number, request: AssignClientRequest): Observable<CaseResponse> {
+    return this.http.patch<CaseResponse>(`${this.apiUrl}/${caseId}/client`, request);
   }
 
   exportCases(params: CaseSearchParams): Observable<Blob> {

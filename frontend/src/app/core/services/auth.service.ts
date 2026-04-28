@@ -82,17 +82,19 @@ export class AuthService {
 
   hasPermission(permission: string): boolean {
     const user = this.currentUser();
-    if (!user || !user.roles) return false;
-    return user.roles.some(
-      (role) => role.permissions && role.permissions.some((p) => p.name === permission)
+    if (!user?.groups) return false;
+    return user.groups.some(
+      (group) => group.permissions?.some((p) => p.name === permission)
     );
   }
 
   hasRole(roleName: string): boolean {
     const user = this.currentUser();
-    if (!user || !user.roles) return false;
-    return user.roles.some((role) => role.name === roleName);
+    if (!user?.groups) return false;
+    return user.groups.some(
+      (group) => group.roles?.some((r) => r.name === roleName)
+    );
   }
 }
 
-export { UserResponse, RoleResponse, PermissionResponse } from '../models/user.model';
+export { UserResponse } from '../models/user.model';

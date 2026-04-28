@@ -8,6 +8,7 @@ import com.lawfirm.domain.model.Group;
 import com.lawfirm.domain.model.Role;
 import com.lawfirm.domain.model.User;
 import com.lawfirm.domain.repository.GroupRepository;
+import com.lawfirm.domain.repository.PermissionRepository;
 import com.lawfirm.domain.repository.RoleRepository;
 import com.lawfirm.domain.repository.UserRepository;
 import com.lawfirm.presentation.exception.DuplicateResourceException;
@@ -41,6 +42,9 @@ class GroupServiceTest {
     private RoleRepository roleRepository;
 
     @Mock
+    private PermissionRepository permissionRepository;
+
+    @Mock
     private UserRepository userRepository;
 
     @Mock
@@ -52,10 +56,10 @@ class GroupServiceTest {
     @Test
     void testCreateGroup_Success() {
         // Arrange
-        GroupRequest request = new GroupRequest("Engineering", "Engineering team", Set.of(1L));
+        GroupRequest request = new GroupRequest("Engineering", "Engineering team", Set.of(1L), null);
         Group group = Group.builder().name("Engineering").description("Engineering team").build();
         GroupResponse response = new GroupResponse(
-            1L, "Engineering", "Engineering team", Set.of(), Set.of(), 0, null, null
+            1L, "Engineering", "Engineering team", Set.of(), Set.of(), Set.of(), 0, null, null
         );
         Role role = Role.builder().id(1L).name("DEVELOPER").build();
 
@@ -77,7 +81,7 @@ class GroupServiceTest {
     @Test
     void testCreateGroup_DuplicateName_ThrowsException() {
         // Arrange
-        GroupRequest request = new GroupRequest("Engineering", "Engineering team", Set.of());
+        GroupRequest request = new GroupRequest("Engineering", "Engineering team", Set.of(), null);
         when(groupRepository.existsByName("Engineering")).thenReturn(true);
 
         // Act & Assert
@@ -90,7 +94,7 @@ class GroupServiceTest {
     void testUpdateGroup_Success() {
         // Arrange
         Long groupId = 1L;
-        GroupRequest request = new GroupRequest("Updated Name", "Updated description", Set.of(1L));
+        GroupRequest request = new GroupRequest("Updated Name", "Updated description", Set.of(1L), null);
         Group group = Group.builder()
             .id(groupId)
             .name("Old Name")
@@ -98,7 +102,7 @@ class GroupServiceTest {
             .roles(new HashSet<>())
             .build();
         GroupResponse response = new GroupResponse(
-            groupId, "Updated Name", "Updated description", Set.of(), Set.of(), 0, null, null
+            groupId, "Updated Name", "Updated description", Set.of(), Set.of(), Set.of(), 0, null, null
         );
         Role role = Role.builder().id(1L).name("DEVELOPER").build();
 
@@ -150,7 +154,7 @@ class GroupServiceTest {
         User user1 = User.builder().id(1L).username("user1").groups(new HashSet<>()).build();
         User user2 = User.builder().id(2L).username("user2").groups(new HashSet<>()).build();
         GroupResponse response = new GroupResponse(
-            groupId, "Engineering", "Eng team", Set.of(), Set.of(), 2, null, null
+            groupId, "Engineering", "Eng team", Set.of(), Set.of(), Set.of(), 2, null, null
         );
 
         when(groupRepository.findByIdWithRolesAndUsers(groupId)).thenReturn(Optional.of(group));

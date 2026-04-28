@@ -27,7 +27,7 @@ public class Permission extends BaseEntity {
     private PermissionAction action;
 
     public enum PermissionResource {
-        USER, ROLE, PERMISSION, SYSTEM, CASE, LAWYER, TRIBUNAL, CASETYPE, CLIENT
+        USER, ROLE, PERMISSION, SYSTEM, CASE, LAWYER, TRIBUNAL, CASETYPE, CLIENT, FINANCIAL, INVOICE
     }
 
     public enum PermissionAction {

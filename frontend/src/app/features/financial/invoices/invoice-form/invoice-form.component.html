@@ -1,0 +1,126 @@
+<div class="max-w-3xl mx-auto space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nouvelle facture</h1>
+
+  @if (error()) {
+    <div class="p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-sm">
+      {{ error() }}
+    </div>
+  }
+
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+    <!-- Case selector -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dossier *</label>
+      <select (change)="caseId.set(+$any($event.target).value || null)"
+              class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <option value="">— Sélectionner un dossier —</option>
+        @for (c of cases(); track c.id) {
+          <option [value]="c.id">{{ c.fullCaseNumber }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Dates -->
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date d'émission *</label>
+        <input type="date" (change)="issueDate.set($any($event.target).value)"
+               class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date d'échéance</label>
+        <input type="date" (change)="dueDate.set($any($event.target).value)"
+               class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+      <textarea rows="2" (input)="notes.set($any($event.target).value)"
+                class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+    </div>
+  </div>
+
+  <!-- Line items -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Articles</h2>
+      <button (click)="addItem()"
+              class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 font-medium">
+        + Ajouter
+      </button>
+    </div>
+
+    @for (item of items(); track $index; let i = $index) {
+      <div class="grid grid-cols-12 gap-2 items-end border-b border-gray-100 dark:border-gray-700 pb-4">
+        <div class="col-span-4">
+          <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Description *</label>
+          <input type="text" [value]="item.description"
+                 (input)="updateItem(i, 'description', $any($event.target).value)"
+                 class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm" />
+        </div>
+        <div class="col-span-3">
+          <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Type</label>
+          <select [value]="item.operationType"
+                  (change)="updateItem(i, 'operationType', $any($event.target).value)"
+                  class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+            @for (opt of operationTypeOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-span-1">
+          <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Qté</label>
+          <input type="number" min="1" [value]="item.quantity"
+                 (input)="updateItem(i, 'quantity', +$any($event.target).value)"
+                 class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm" />
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">P.U. (MAD)</label>
+          <input type="number" step="0.01" min="0" [value]="item.unitPrice"
+                 (input)="updateItem(i, 'unitPrice', +$any($event.target).value)"
+                 class="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm" />
+        </div>
+        <div class="col-span-1 text-right text-sm font-semibold text-gray-700 dark:text-gray-300 pb-1.5">
+          {{ (item.quantity * item.unitPrice) | number:'1.2-2' }}
+        </div>
+        <div class="col-span-1 text-right pb-1.5">
+          @if (items().length > 1) {
+            <button (click)="removeItem(i)"
+                    class="text-red-500 hover:text-red-700 text-xs font-medium">✕</button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Totals -->
+    <div class="space-y-2 text-right pt-2">
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Sous-total: <span class="font-semibold text-gray-900 dark:text-white">{{ subtotal | number:'1.2-2' }} MAD</span>
+      </p>
+      <div class="flex items-center justify-end gap-4">
+        <label class="text-sm text-gray-600 dark:text-gray-400">TVA (%):</label>
+        <input type="number" step="1" min="0" max="100" [value]="taxRate()"
+               (input)="taxRate.set(+$any($event.target).value)"
+               class="w-20 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm text-right" />
+        <span class="text-sm text-gray-500 dark:text-gray-400">({{ taxAmount | number:'1.2-2' }} MAD)</span>
+      </div>
+      <p class="text-base font-bold text-gray-900 dark:text-white">
+        Total: {{ total | number:'1.2-2' }} MAD
+      </p>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex justify-end gap-3">
+    <button (click)="cancel()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors">
+      Annuler
+    </button>
+    <button (click)="submit()" [disabled]="loading()"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-md transition-colors">
+      {{ loading() ? 'Création...' : 'Créer la facture' }}
+    </button>
+  </div>
+</div>

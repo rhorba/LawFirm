@@ -27,6 +27,12 @@ export class SidebarComponent {
     { label: 'Cases', icon: 'description', route: '/cases', permission: 'CASE_READ' },
     { label: 'Lawyers', icon: 'gavel', route: '/lawyers', permission: 'LAWYER_READ' },
     { label: 'Clients', icon: 'people', route: '/clients', permission: 'CLIENT_READ' },
+    {
+      label: 'Financial',
+      icon: 'account_balance_wallet',
+      route: '/financial',
+      permission: 'FINANCIAL_READ',
+    },
     { label: 'Users', icon: 'manage_accounts', route: '/users', permission: 'USER_READ' },
     { label: 'Groups', icon: 'group', route: '/groups', permission: 'SYSTEM_MANAGE' },
     { label: 'Audit Logs', icon: 'history', route: '/audit-logs', permission: 'SYSTEM_MANAGE' },

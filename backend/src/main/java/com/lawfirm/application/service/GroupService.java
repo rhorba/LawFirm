@@ -5,9 +5,11 @@ import com.lawfirm.application.dto.request.GroupRequest;
 import com.lawfirm.application.dto.response.GroupResponse;
 import com.lawfirm.application.mapper.GroupMapper;
 import com.lawfirm.domain.model.Group;
+import com.lawfirm.domain.model.Permission;
 import com.lawfirm.domain.model.Role;
 import com.lawfirm.domain.model.User;
 import com.lawfirm.domain.repository.GroupRepository;
+import com.lawfirm.domain.repository.PermissionRepository;
 import com.lawfirm.domain.repository.RoleRepository;
 import com.lawfirm.domain.repository.UserRepository;
 import com.lawfirm.presentation.exception.DuplicateResourceException;
@@ -27,6 +29,7 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
     private final UserRepository userRepository;
     private final GroupMapper groupMapper;
 
@@ -46,20 +49,26 @@ public class GroupService {
 
     @Transactional
     public GroupResponse createGroup(GroupRequest request) {
-        // Check for duplicate name
         if (groupRepository.existsByName(request.name())) {
             throw new DuplicateResourceException("Group already exists with name: " + request.name());
         }
 
         Group group = groupMapper.toEntity(request);
 
-        // Assign roles if provided
         if (request.roleIds() != null && !request.roleIds().isEmpty()) {
             Set<Role> roles = new HashSet<>(roleRepository.findAllById(request.roleIds()));
             if (roles.size() != request.roleIds().size()) {
                 throw new ResourceNotFoundException("One or more role IDs not found");
             }
             group.setRoles(roles);
+        }
+
+        if (request.permissionIds() != null && !request.permissionIds().isEmpty()) {
+            Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(request.permissionIds()));
+            if (permissions.size() != request.permissionIds().size()) {
+                throw new ResourceNotFoundException("One or more permission IDs not found");
+            }
+            group.setPermissions(permissions);
         }
 
         Group savedGroup = groupRepository.save(group);
@@ -71,7 +80,6 @@ public class GroupService {
         Group group = groupRepository.findByIdWithRoles(id)
             .orElseThrow(() -> new ResourceNotFoundException("Group not found with id: " + id));
 
-        // Check for duplicate name (excluding current group)
         if (!group.getName().equals(request.name()) && groupRepository.existsByName(request.name())) {
             throw new DuplicateResourceException("Group already exists with name: " + request.name());
         }
@@ -79,7 +87,6 @@ public class GroupService {
         group.setName(request.name());
         group.setDescription(request.description());
 
-        // Update roles
         if (request.roleIds() != null) {
             Set<Role> roles = new HashSet<>(roleRepository.findAllById(request.roleIds()));
             if (roles.size() != request.roleIds().size()) {
@@ -88,6 +95,16 @@ public class GroupService {
             group.setRoles(roles);
         } else {
             group.getRoles().clear();
+        }
+
+        if (request.permissionIds() != null) {
+            Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(request.permissionIds()));
+            if (permissions.size() != request.permissionIds().size()) {
+                throw new ResourceNotFoundException("One or more permission IDs not found");
+            }
+            group.setPermissions(permissions);
+        } else {
+            group.getPermissions().clear();
         }
 
         Group updatedGroup = groupRepository.save(group);
@@ -99,7 +116,6 @@ public class GroupService {
         Group group = groupRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Group not found with id: " + id));
 
-        // Prevent deletion if group has users
         if (!group.getUsers().isEmpty()) {
             throw new GroupHasUsersException(
                 "Cannot delete group with existing users. Please remove all users first."
@@ -119,7 +135,6 @@ public class GroupService {
             throw new ResourceNotFoundException("One or more user IDs not found");
         }
 
-        // Add users to group
         for (User user : users) {
             user.getGroups().add(group);
             group.getUsers().add(user);

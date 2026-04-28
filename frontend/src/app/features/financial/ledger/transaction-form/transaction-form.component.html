@@ -1,0 +1,133 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg mx-4 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Nouvelle transaction</h2>
+
+    @if (error()) {
+      <div class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded text-sm">
+        {{ error() }}
+      </div>
+    }
+
+    <div class="space-y-4">
+      <!-- Case selector (only when not embedded in a case view) -->
+      @if (!caseId) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dossier *</label>
+          <select
+            (change)="updateField('caseId', +$any($event.target).value || undefined)"
+            class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">— Sélectionner un dossier —</option>
+            @for (c of cases(); track c.id) {
+              <option [value]="c.id">{{ c.fullCaseNumber }} – {{ c.caseDescription }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Direction -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Direction *</label>
+        <select
+          [ngModel]="form().direction"
+          (ngModelChange)="onDirectionChange($event)"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          @for (opt of directionOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Operation Type (only shown for EXPENSE) -->
+      @if (isExpense()) {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type d'opération *</label>
+          <select
+            [ngModel]="form().operationType"
+            (ngModelChange)="updateField('operationType', $event)"
+            class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            @for (opt of operationTypeOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      }
+
+      <!-- Amount -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Montant (MAD) *</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0.01"
+          [value]="form().amount ?? ''"
+          (input)="updateField('amount', +$any($event.target).value || undefined)"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      <!-- Payment Mode -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mode de paiement</label>
+        <select
+          (change)="updateField('paymentMode', $any($event.target).value || undefined)"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">— Sélectionner —</option>
+          @for (opt of paymentModeOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Payment Date -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date de paiement</label>
+        <input
+          type="date"
+          (change)="updateField('paymentDate', $any($event.target).value || undefined)"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      <!-- Reference -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Référence</label>
+        <input
+          type="text"
+          (input)="updateField('paymentReference', $any($event.target).value || undefined)"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+        <textarea
+          rows="2"
+          (input)="updateField('description', $any($event.target).value || undefined)"
+          class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        (click)="cancelled.emit()"
+        class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+      >
+        Annuler
+      </button>
+      <button
+        (click)="submit()"
+        [disabled]="loading()"
+        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-md transition-colors"
+      >
+        {{ loading() ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+</div>

@@ -50,6 +50,24 @@ public class AuditLogService {
         }
     }
 
+    @Transactional
+    public void log(String resource, Long resourceId, String action,
+                    Object oldValues, Object newValues, String username) {
+        try {
+            AuditLog entry = AuditLog.builder()
+                .resource(resource)
+                .resourceId(resourceId.toString())
+                .action(action)
+                .username(username)
+                .oldValues(oldValues != null ? objectMapper.writeValueAsString(oldValues) : null)
+                .newValues(newValues != null ? objectMapper.writeValueAsString(newValues) : null)
+                .build();
+            auditLogRepository.save(entry);
+        } catch (Exception e) {
+            log.warn("Failed to write snapshot audit log for {} {}: {}", resource, resourceId, e.getMessage());
+        }
+    }
+
     @Transactional(readOnly = true)
     public List<AuditLogResponse> findByResource(String resource, Long resourceId) {
         return auditLogRepository

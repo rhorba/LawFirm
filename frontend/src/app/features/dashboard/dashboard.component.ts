@@ -17,13 +17,13 @@ import { AuthService } from '../../core/services/auth.service';
         </h2>
         <p class="text-gray-600 dark:text-gray-400">Email: {{ user.email }}</p>
         <div class="mt-4">
-          <h3 class="font-semibold mb-2 text-gray-900 dark:text-white">Your Roles:</h3>
-          <div class="flex gap-2">
-            @for (role of user.roles; track role.id) {
+          <h3 class="font-semibold mb-2 text-gray-900 dark:text-white">Your Groups:</h3>
+          <div class="flex flex-wrap gap-2">
+            @for (group of user.groups; track group.id) {
               <span
                 class="inline-flex items-center px-3 py-1 text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
               >
-                {{ role.name }}
+                {{ group.name }}
               </span>
             }
           </div>

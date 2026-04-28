@@ -5,8 +5,7 @@ export interface UserResponse {
   username: string;
   email: string;
   enabled: boolean;
-  roles: RoleResponse[]; // Keep for backward compatibility - computed from groups
-  groups: GroupResponse[]; // New field - primary source
+  groups: GroupResponse[];
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;

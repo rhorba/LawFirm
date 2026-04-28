@@ -61,71 +61,60 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Case Type -->
           <div>
-            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="caseTypeCode">
-              Case Type <span class="text-red-500">*</span>
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+              Type d'affaire <span class="text-red-500">*</span>
             </label>
-            <select
-              id="caseTypeCode"
+            <app-searchable-select
               formControlName="caseTypeCode"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-              [class.border-red-500]="caseForm.get('caseTypeCode')?.invalid && caseForm.get('caseTypeCode')?.touched"
-            >
-              <option value="">Select case type</option>
-              @for (type of refDataService.caseTypes(); track type.code) {
-                <option [value]="type.code">{{ type.nameFr }}</option>
-              }
-            </select>
+              endpoint="/api/case-types"
+              displayField="nameFr"
+              valueField="code"
+              placeholder="Rechercher un type d'affaire..."
+            />
             @if (caseForm.get('caseTypeCode')?.invalid && caseForm.get('caseTypeCode')?.touched) {
-              <p class="text-red-500 text-xs italic mt-1">Case type is required</p>
+              <p class="text-red-500 text-xs italic mt-1">Le type d'affaire est obligatoire</p>
             }
           </div>
 
           <!-- Case Category -->
           <div>
-            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="caseCategoryCode">
-              Category
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+              Catégorie
             </label>
-            <select
-              id="caseCategoryCode"
+            <app-searchable-select
               formControlName="caseCategoryCode"
-              [disabled]="!caseForm.get('caseTypeCode')?.value"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <option value="">Select category</option>
-              @for (category of caseCategories(); track category.code) {
-                <option [value]="category.code">{{ category.nameFr }}</option>
-              }
-            </select>
+              endpoint="/api/case-categories"
+              displayField="nameFr"
+              valueField="code"
+              placeholder="Rechercher une catégorie..."
+              [additionalParams]="{ caseTypeCode: caseForm.get('caseTypeCode')?.value ?? '' }"
+            />
             @if (!caseForm.get('caseTypeCode')?.value) {
-              <p class="text-gray-500 dark:text-gray-400 text-xs italic mt-1">Select a case type first</p>
+              <p class="text-gray-500 dark:text-gray-400 text-xs italic mt-1">Sélectionnez un type d'affaire d'abord</p>
             }
           </div>
 
           <!-- Tribunal -->
           <div>
-            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="tribunalCode">
+            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
               Tribunal <span class="text-red-500">*</span>
             </label>
-            <select
-              id="tribunalCode"
+            <app-searchable-select
               formControlName="tribunalCode"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
-              [class.border-red-500]="caseForm.get('tribunalCode')?.invalid && caseForm.get('tribunalCode')?.touched"
-            >
-              <option value="">Select tribunal</option>
-              @for (tribunal of refDataService.tribunals(); track tribunal.code) {
-                <option [value]="tribunal.code">{{ tribunal.nameFr }}</option>
-              }
-            </select>
+              endpoint="/api/tribunals"
+              displayField="nameFr"
+              valueField="code"
+              placeholder="Rechercher un tribunal..."
+            />
             @if (caseForm.get('tribunalCode')?.invalid && caseForm.get('tribunalCode')?.touched) {
-              <p class="text-red-500 text-xs italic mt-1">Tribunal is required</p>
+              <p class="text-red-500 text-xs italic mt-1">Le tribunal est obligatoire</p>
             }
           </div>
 
           <!-- Priority -->
           <div>
             <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="priority">
-              Priority
+              Priorité
             </label>
             <select
               id="priority"
@@ -133,38 +122,28 @@
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 leading-tight focus:outline-none focus:shadow-outline"
             >
               <option value="URGENT">Urgent</option>
-              <option value="HIGH">High</option>
-              <option value="NORMAL">Normal</option>
-              <option value="LOW">Low</option>
+              <option value="HIGH">Haute</option>
+              <option value="NORMAL">Normale</option>
+              <option value="LOW">Basse</option>
             </select>
           </div>
         </div>
 
-        <!-- Lawyers Multi-Select Checklist -->
+        <!-- Lawyers Multi-Select -->
         <div class="mt-4">
           <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
-            Lawyers <span class="text-red-500">*</span>
+            Avocats <span class="text-red-500">*</span>
           </label>
-          <div class="border border-gray-300 dark:border-gray-600 rounded-lg max-h-40 overflow-y-auto p-2 space-y-1 dark:bg-gray-700">
-            @if (lawyers().length === 0) {
-              <p class="text-sm text-gray-400 dark:text-gray-500 py-2 text-center">Loading lawyers...</p>
-            }
-            @for (lawyer of lawyers(); track lawyer.id) {
-              <label class="flex items-center gap-2 cursor-pointer px-2 py-1 rounded hover:bg-gray-50 dark:hover:bg-gray-600">
-                <input
-                  type="checkbox"
-                  [checked]="isLawyerSelected(lawyer.id)"
-                  (change)="toggleLawyer(lawyer.id)"
-                  class="rounded border-gray-300 dark:border-gray-500"
-                />
-                <span class="text-sm text-gray-700 dark:text-gray-300">
-                  {{ lawyer.firstName }} {{ lawyer.lastName }}
-                </span>
-              </label>
-            }
-          </div>
-          @if (selectedLawyerIds().length === 0) {
-            <p class="text-orange-500 text-xs italic mt-1">Select at least one lawyer</p>
+          <app-searchable-select
+            formControlName="lawyerIds"
+            endpoint="/api/lawyers"
+            displayField="fullName"
+            valueField="id"
+            placeholder="Rechercher un avocat..."
+            [multiple]="true"
+          />
+          @if ((caseForm.get('lawyerIds')?.value ?? []).length === 0 && caseForm.get('lawyerIds')?.touched) {
+            <p class="text-orange-500 text-xs italic mt-1">Sélectionnez au moins un avocat</p>
           }
         </div>
       </div>
@@ -340,6 +319,23 @@
             </div>
           }
         </div>
+      </div>
+    </div>
+
+    <!-- Client Assignment -->
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Client</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">
+          Client assigné <span class="text-gray-400 text-xs font-normal">(optionnel)</span>
+        </label>
+        <app-searchable-select
+          formControlName="clientId"
+          endpoint="/api/clients"
+          displayField="fullName"
+          valueField="id"
+          placeholder="Rechercher un client..."
+        />
       </div>
     </div>
 

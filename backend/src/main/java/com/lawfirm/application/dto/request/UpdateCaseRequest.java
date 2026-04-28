@@ -42,5 +42,7 @@ public record UpdateCaseRequest(
 
     Short fiscalYear,
 
-    Long parentCaseId
+    Long parentCaseId,
+
+    Long clientId
 ) {}

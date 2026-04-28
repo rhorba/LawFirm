@@ -25,6 +25,8 @@ export interface CaseResponse {
   lawyers: LawyerResponse[];
   status: CaseStatusResponse;
   financialSummary: FinancialSummary;
+  clientId?: number;
+  clientName?: string;
   priority: CasePriority;
   opposingParty?: string;
   outcome?: CaseOutcome;
@@ -82,7 +84,7 @@ export interface CaseStatusResponse {
 }
 
 export interface FinancialSummary {
-  totalPayments: number;
+  totalRevenue: number;
   totalExpenses: number;
   balance: number;
   transactionCount: number;
@@ -131,6 +133,7 @@ export interface CreateCaseRequest {
   initialPaymentDate?: string;
   fiscalYear?: number;
   parentCaseId?: number;
+  clientId?: number;
 }
 
 export interface UpdateCaseRequest {
@@ -148,6 +151,11 @@ export interface UpdateCaseRequest {
   initialPaymentDate?: string;
   fiscalYear?: number;
   parentCaseId?: number;
+  clientId?: number;
+}
+
+export interface AssignClientRequest {
+  clientId: number | null;
 }
 
 export interface ChangeStatusRequest {
@@ -175,5 +183,7 @@ export interface AuditLogResponse {
   resourceId: string;
   username: string;
   metadata: string;
+  oldValues?: Record<string, unknown>;
+  newValues?: Record<string, unknown>;
   createdAt: string;
 }

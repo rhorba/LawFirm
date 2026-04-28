@@ -16,6 +16,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "financial_transactions")
@@ -31,8 +32,16 @@ public class FinancialTransaction extends BaseEntity {
     private Case caseEntity;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private TransactionType transactionType;
+    @Column(nullable = false, length = 10)
+    private Direction direction;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "operation_type", nullable = false, length = 20)
+    private OperationType operationType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_mode", length = 15)
+    private PaymentMode paymentMode;
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
@@ -42,6 +51,9 @@ public class FinancialTransaction extends BaseEntity {
 
     @Column(name = "payment_reference", length = 100)
     private String paymentReference;
+
+    @Column(name = "account_number", length = 50)
+    private String accountNumber;
 
     @Column(name = "lawyer_payment_year")
     private Integer lawyerPaymentYear;
@@ -55,8 +67,23 @@ public class FinancialTransaction extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    public enum TransactionType {
-        PAYMENT,
-        EXPENSE
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "invoice_id")
+    private Invoice invoice;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    public enum Direction {
+        REVENUE, EXPENSE
+    }
+
+    public enum OperationType {
+        OPENING_FEE, PROCEDURE_FEE, INTERVENTION_FEE, EXPERT_FEE,
+        DOCUMENT_FEE, NOTIFICATION_FEE, JUDICIAL_TAX, OTHER
+    }
+
+    public enum PaymentMode {
+        CHECK, TRANSFER, CASH, CREDIT_CARD, MONEY_ORDER
     }
 }

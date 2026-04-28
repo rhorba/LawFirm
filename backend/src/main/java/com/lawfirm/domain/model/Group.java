@@ -39,6 +39,16 @@ public class Group extends BaseEntity {
     @lombok.Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "group_permissions",
+        joinColumns = @JoinColumn(name = "group_id"),
+        inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
+    @org.hibernate.annotations.BatchSize(size = 50)
+    @lombok.Builder.Default
+    private Set<Permission> permissions = new HashSet<>();
+
     @ManyToMany(mappedBy = "groups", fetch = FetchType.LAZY)
     @lombok.Builder.Default
     private Set<User> users = new HashSet<>();

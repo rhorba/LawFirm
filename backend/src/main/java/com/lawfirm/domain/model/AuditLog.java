@@ -38,4 +38,10 @@ public class AuditLog extends BaseEntity {
 
     @Column(name = "ip_address")
     private String ipAddress;
+
+    @Column(name = "old_values", columnDefinition = "TEXT")
+    private String oldValues;
+
+    @Column(name = "new_values", columnDefinition = "TEXT")
+    private String newValues;
 }

@@ -16,11 +16,11 @@
           </h2>
           <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">{{ user.email }}</p>
           <div class="flex flex-wrap justify-center gap-2 mb-4">
-            @for (role of user.roles; track role.id) {
+            @for (group of user.groups; track group.id) {
               <span
                 class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full"
               >
-                {{ role.name }}
+                {{ group.name }}
               </span>
             }
           </div>

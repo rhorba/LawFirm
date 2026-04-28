@@ -1,10 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CaseService } from '../../../services/case.service';
-import { LawyerService } from '../../../services/lawyer.service';
 import { ReferenceDataService } from '../../../services/reference-data.service';
 import {
   CaseResponse,
@@ -13,11 +11,12 @@ import {
   UpdateCaseRequest,
 } from '../../../core/models/case.model';
 import { CaseTemplatesComponent } from '../components/case-templates/case-templates.component';
+import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 
 @Component({
   selector: 'app-case-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, CaseTemplatesComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, CaseTemplatesComponent, SearchableSelectComponent],
   templateUrl: './case-form.component.html',
 })
 export class CaseFormComponent implements OnInit {
@@ -25,7 +24,6 @@ export class CaseFormComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private caseService = inject(CaseService);
-  private lawyerService = inject(LawyerService);
   public refDataService = inject(ReferenceDataService);
 
   // State
@@ -33,14 +31,13 @@ export class CaseFormComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   isEditMode = signal(false);
-  lawyers = signal<any[]>([]);
-  selectedLawyerIds = signal<number[]>([]);
   showTemplateModal = signal(false);
 
   caseForm = this.fb.nonNullable.group({
     caseTypeCode: ['', [Validators.required]],
     caseCategoryCode: [''],
     tribunalCode: ['', [Validators.required]],
+    lawyerIds: [[] as number[]],
     registrationDate: [new Date().toISOString().split('T')[0], [Validators.required]],
     caseDescription: ['', [Validators.required, Validators.maxLength(500)]],
     matterDescription: ['', [Validators.maxLength(1000)]],
@@ -51,19 +48,7 @@ export class CaseFormComponent implements OnInit {
     outcomeNotes: ['', [Validators.maxLength(1000)]],
     initialPaymentDate: [''],
     fiscalYear: [null as number | null],
-  });
-
-  // Convert form control valueChanges to a signal for reactive computed
-  private selectedCaseTypeCode = toSignal(
-    this.caseForm.get('caseTypeCode')!.valueChanges,
-    { initialValue: '' }
-  );
-
-  // Computed categories filtered by selected case type
-  caseCategories = computed(() => {
-    const typeCode = this.selectedCaseTypeCode();
-    if (!typeCode) return [];
-    return this.refDataService.categories().filter((c: any) => c.caseTypeCode === typeCode);
+    clientId: [null as number | null],
   });
 
   ngOnInit(): void {
@@ -74,12 +59,10 @@ export class CaseFormComponent implements OnInit {
       this.loadCase(parseInt(id, 10));
     }
 
-    // Watch case type changes to reset category
+    // Reset category when case type changes
     this.caseForm.get('caseTypeCode')?.valueChanges.subscribe(() => {
       this.caseForm.patchValue({ caseCategoryCode: '' });
     });
-
-    this.loadLawyers();
   }
 
   loadCase(id: number): void {
@@ -100,13 +83,11 @@ export class CaseFormComponent implements OnInit {
   }
 
   patchFormValues(caseData: CaseResponse): void {
-    // Set multi-lawyer selection
-    this.selectedLawyerIds.set(caseData.lawyers.map((l) => l.id));
-
     this.caseForm.patchValue({
       caseTypeCode: caseData.caseType.code,
       caseCategoryCode: caseData.caseCategory?.code || '',
       tribunalCode: caseData.tribunal.code,
+      lawyerIds: caseData.lawyers.map((l) => l.id),
       registrationDate: caseData.registrationDate,
       caseDescription: caseData.caseDescription,
       matterDescription: caseData.matterDescription || '',
@@ -116,31 +97,8 @@ export class CaseFormComponent implements OnInit {
       outcomeNotes: caseData.outcomeNotes || '',
       initialPaymentDate: caseData.initialPaymentDate || '',
       fiscalYear: caseData.fiscalYear ?? null,
+      clientId: caseData.clientId ?? null,
     });
-  }
-
-  loadLawyers(): void {
-    this.lawyerService.getAll().subscribe({
-      next: (lawyers) => {
-        this.lawyers.set(lawyers.filter((l: any) => l.active));
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load lawyers:', err);
-      },
-    });
-  }
-
-  toggleLawyer(id: number): void {
-    const current = this.selectedLawyerIds();
-    if (current.includes(id)) {
-      this.selectedLawyerIds.set(current.filter((i) => i !== id));
-    } else {
-      this.selectedLawyerIds.set([...current, id]);
-    }
-  }
-
-  isLawyerSelected(id: number): boolean {
-    return this.selectedLawyerIds().includes(id);
   }
 
   applyTemplate(template: CaseTemplateResponse): void {
@@ -178,7 +136,10 @@ export class CaseFormComponent implements OnInit {
       return;
     }
 
-    if (this.selectedLawyerIds().length === 0) {
+    const formValue = this.caseForm.getRawValue();
+    const lawyerIds = (formValue.lawyerIds as number[]) ?? [];
+
+    if (lawyerIds.length === 0) {
       this.error.set('At least one lawyer must be selected.');
       return;
     }
@@ -186,14 +147,12 @@ export class CaseFormComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    const formValue = this.caseForm.getRawValue();
-
     if (this.isEditMode()) {
       const request: UpdateCaseRequest = {
         caseTypeCode: formValue.caseTypeCode,
         caseCategoryCode: formValue.caseCategoryCode || undefined,
         tribunalCode: formValue.tribunalCode,
-        lawyerIds: this.selectedLawyerIds(),
+        lawyerIds,
         registrationDate: formValue.registrationDate,
         caseDescription: formValue.caseDescription,
         matterDescription: formValue.matterDescription || undefined,
@@ -203,6 +162,7 @@ export class CaseFormComponent implements OnInit {
         outcomeNotes: formValue.outcomeNotes || undefined,
         initialPaymentDate: formValue.initialPaymentDate || undefined,
         fiscalYear: formValue.fiscalYear ?? undefined,
+        clientId: formValue.clientId ?? undefined,
       };
 
       this.caseService.updateCase(this.caseData()!.id, request).subscribe({
@@ -220,7 +180,7 @@ export class CaseFormComponent implements OnInit {
         caseTypeCode: formValue.caseTypeCode,
         caseCategoryCode: formValue.caseCategoryCode || undefined,
         tribunalCode: formValue.tribunalCode,
-        lawyerIds: this.selectedLawyerIds(),
+        lawyerIds,
         registrationDate: formValue.registrationDate,
         caseDescription: formValue.caseDescription,
         matterDescription: formValue.matterDescription || undefined,
@@ -231,6 +191,7 @@ export class CaseFormComponent implements OnInit {
         outcomeNotes: formValue.outcomeNotes || undefined,
         initialPaymentDate: formValue.initialPaymentDate || undefined,
         fiscalYear: formValue.fiscalYear ?? undefined,
+        clientId: formValue.clientId ?? undefined,
       };
 
       this.caseService.createCase(request).subscribe({

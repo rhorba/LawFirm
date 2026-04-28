@@ -1,5 +1,6 @@
 package com.lawfirm.presentation.controller;
 
+import com.lawfirm.application.dto.request.AssignClientRequest;
 import com.lawfirm.application.dto.request.ChangeStatusRequest;
 import com.lawfirm.application.dto.request.CreateCaseRequest;
 import com.lawfirm.application.dto.request.UpdateCaseRequest;
@@ -160,6 +161,16 @@ public class CaseController {
         @AuthenticationPrincipal UserPrincipal currentUser
     ) {
         return ResponseEntity.ok(caseService.changeStatus(id, request, currentUser));
+    }
+
+    @PatchMapping("/{id}/client")
+    @PreAuthorize("hasPermission(null, 'CASE_UPDATE')")
+    @Operation(summary = "Assign or unassign client on a case (clientId=null to unassign)")
+    public ResponseEntity<CaseResponse> assignClient(
+        @PathVariable Long id,
+        @RequestBody AssignClientRequest request
+    ) {
+        return ResponseEntity.ok(caseService.assignClient(id, request.clientId()));
     }
 
     @DeleteMapping("/{id}")

@@ -111,6 +111,44 @@ export const routes: Routes = [
           import('./features/profile/profile.component').then((m) => m.ProfileComponent),
       },
       {
+        path: 'financial',
+        children: [
+          {
+            path: '',
+            redirectTo: 'ledger',
+            pathMatch: 'full',
+          },
+          {
+            path: 'ledger',
+            loadComponent: () =>
+              import('./features/financial/ledger/financial-ledger.component').then(
+                (m) => m.FinancialLedgerComponent,
+              ),
+          },
+          {
+            path: 'invoices',
+            loadComponent: () =>
+              import(
+                './features/financial/invoices/invoice-list/invoice-list.component'
+              ).then((m) => m.InvoiceListComponent),
+          },
+          {
+            path: 'invoices/new',
+            loadComponent: () =>
+              import(
+                './features/financial/invoices/invoice-form/invoice-form.component'
+              ).then((m) => m.InvoiceFormComponent),
+          },
+          {
+            path: 'invoices/:id',
+            loadComponent: () =>
+              import(
+                './features/financial/invoices/invoice-detail/invoice-detail.component'
+              ).then((m) => m.InvoiceDetailComponent),
+          },
+        ],
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings.component').then((m) => m.SettingsComponent),

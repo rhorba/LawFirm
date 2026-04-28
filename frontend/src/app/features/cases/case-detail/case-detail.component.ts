@@ -10,18 +10,21 @@ import {
   CaseSummaryResponse,
 } from '../../../core/models/case.model';
 import { ChangeStatusModalComponent } from '../change-status-modal/change-status-modal.component';
+import { FinancialTabComponent } from './financial-tab/financial-tab.component';
+import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-case-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ChangeStatusModalComponent, DatePipe],
+  imports: [CommonModule, RouterLink, ChangeStatusModalComponent, DatePipe, FinancialTabComponent, SearchableSelectComponent, FormsModule],
   templateUrl: './case-detail.component.html',
 })
 export class CaseDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private caseService = inject(CaseService);
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
 
   // State
   caseData = signal<CaseResponse | null>(null);
@@ -32,11 +35,16 @@ export class CaseDetailComponent implements OnInit {
   // New: children, history, active tab
   children = signal<CaseSummaryResponse[]>([]);
   history = signal<AuditLogResponse[]>([]);
-  activeTab = signal<'details' | 'children' | 'history'>('details');
+  activeTab = signal<'details' | 'children' | 'history' | 'financial'>('details');
+
+  // Client assignment
+  showClientAssign = signal(false);
+  selectedClientId = signal<number | null>(null);
 
   // Permissions
   canUpdate = this.authService.hasPermission('CASE_UPDATE');
   canDelete = this.authService.hasPermission('CASE_DELETE');
+  canViewFinancials = this.authService.hasPermission('FINANCIAL_READ');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -110,6 +118,81 @@ export class CaseDetailComponent implements OnInit {
         alert(this.extractErrorMessage(err, 'Failed to delete case'));
       },
     });
+  }
+
+  assignClient(): void {
+    const caseId = this.caseData()?.id;
+    const clientId = this.selectedClientId();
+    if (!caseId || clientId === null) return;
+
+    this.caseService.assignClient(caseId, { clientId }).subscribe({
+      next: (updated) => {
+        this.caseData.set(updated);
+        this.showClientAssign.set(false);
+        this.selectedClientId.set(null);
+      },
+      error: (err: unknown) => alert(this.extractErrorMessage(err, 'Failed to assign client')),
+    });
+  }
+
+  unassignClient(): void {
+    const caseId = this.caseData()?.id;
+    if (!caseId || !confirm('Remove client assignment?')) return;
+
+    this.caseService.assignClient(caseId, { clientId: null }).subscribe({
+      next: (updated) => this.caseData.set(updated),
+      error: (err: unknown) => alert(this.extractErrorMessage(err, 'Failed to unassign client')),
+    });
+  }
+
+  readonly fieldLabels: Record<string, string> = {
+    fullCaseNumber:    'N° dossier',
+    tribunal:          'Tribunal',
+    caseType:          'Type d\'affaire',
+    caseCategory:      'Catégorie',
+    status:            'Statut',
+    priority:          'Priorité',
+    lawyers:           'Avocats',
+    clientName:        'Client',
+    registrationDate:  'Date d\'enregistrement',
+    caseDescription:   'Description',
+    matterDescription: 'Objet',
+    opposingParty:     'Partie adverse',
+    outcome:           'Résultat',
+    outcomeNotes:      'Notes de résultat',
+    fiscalYear:        'Exercice fiscal',
+    initialPaymentDate:'Date de paiement initial',
+  };
+
+  getDiffRows(log: AuditLogResponse): { field: string; label: string; before: string; after: string }[] {
+    if (!log.newValues) return [];
+    const before = log.oldValues ?? {};
+    const after = log.newValues;
+    return Object.keys(after)
+      .filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+      .map(k => ({
+        field: k,
+        label: this.fieldLabels[k] ?? k,
+        before: this.formatValue(before[k]),
+        after: this.formatValue(after[k]),
+      }));
+  }
+
+  private formatValue(val: unknown): string {
+    if (val == null) return '—';
+    if (typeof val === 'object') {
+      const obj = val as Record<string, unknown>;
+      return String(obj['nameFr'] ?? obj['fullName'] ?? obj['firstName'] ?? JSON.stringify(val));
+    }
+    return String(val);
+  }
+
+  // kept for backward compatibility with pre-snapshot audit entries
+  getAuditDiffKeys(log: AuditLogResponse): string[] {
+    const keys = new Set<string>();
+    if (log.oldValues) Object.keys(log.oldValues).forEach(k => keys.add(k));
+    if (log.newValues) Object.keys(log.newValues).forEach(k => keys.add(k));
+    return Array.from(keys);
   }
 
   parseChangedFields(metadata: string): string[] {

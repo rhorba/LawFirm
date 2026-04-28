@@ -2,7 +2,6 @@ package com.lawfirm.infrastructure.security;
 
 import com.lawfirm.domain.model.Group;
 import com.lawfirm.domain.model.Permission;
-import com.lawfirm.domain.model.Role;
 import com.lawfirm.domain.model.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +23,10 @@ public class UserPrincipal implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        // Flatten roles from all groups
+        // Permissions resolved exclusively via user -> groups -> direct group permissions
         for (Group group : user.getGroups()) {
-            for (Role role : group.getRoles()) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-
-                // Add permission-based authorities
-                for (Permission permission : role.getPermissions()) {
-                    authorities.add(new SimpleGrantedAuthority(permission.getName()));
-                }
+            for (Permission permission : group.getPermissions()) {
+                authorities.add(new SimpleGrantedAuthority(permission.getName()));
             }
         }
 

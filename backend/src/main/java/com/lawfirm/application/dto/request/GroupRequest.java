@@ -13,5 +13,7 @@ public record GroupRequest(
     @Size(max = 255, message = "Description must not exceed 255 characters")
     String description,
 
-    Set<Long> roleIds
+    Set<Long> roleIds,
+
+    Set<Long> permissionIds
 ) {}

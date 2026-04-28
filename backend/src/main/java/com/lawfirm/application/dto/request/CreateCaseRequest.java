@@ -52,5 +52,7 @@ public record CreateCaseRequest(
 
     Short fiscalYear,
 
-    Long parentCaseId
+    Long parentCaseId,
+
+    Long clientId
 ) {}

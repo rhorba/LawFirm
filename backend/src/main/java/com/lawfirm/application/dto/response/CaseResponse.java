@@ -26,6 +26,9 @@ public record CaseResponse(
     List<LawyerResponse> lawyers,
     CaseStatusResponse status,
 
+    Long clientId,
+    String clientName,
+
     CasePriority priority,
     String opposingParty,
     CaseOutcome outcome,

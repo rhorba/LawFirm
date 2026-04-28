@@ -1,0 +1,58 @@
+<div class="relative w-full">
+  <!-- Input -->
+  <div class="relative">
+    <input
+      type="text"
+      [value]="query()"
+      (input)="onInput($event)"
+      (focus)="onFocus()"
+      [placeholder]="placeholder"
+      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+    @if (loading()) {
+      <div class="absolute right-2 top-2.5">
+        <div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }
+    @if (selectedValues().length && !loading()) {
+      <button type="button" (click)="clear()"
+        class="absolute right-2 top-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xs leading-none">✕</button>
+    }
+  </div>
+
+  <!-- Multi-select chips -->
+  @if (multiple && selectedValues().length) {
+    <div class="flex flex-wrap gap-1 mt-1">
+      @for (sel of selectedValues(); track sel.value) {
+        <span class="px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full flex items-center gap-1">
+          {{ sel.label }}
+          <button type="button" (click)="select(sel)" class="hover:text-red-500">✕</button>
+        </span>
+      }
+    </div>
+  }
+
+  <!-- Dropdown -->
+  @if (open() && options().length) {
+    <ul class="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg">
+      @for (option of options(); track option.value) {
+        <li
+          (click)="select(option)"
+          [class.bg-blue-50]="isSelected(option)"
+          class="px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 flex items-center justify-between"
+        >
+          {{ option.label }}
+          @if (isSelected(option)) {
+            <span class="text-blue-600 dark:text-blue-400 text-xs">✓</span>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @if (open() && !loading() && options().length === 0 && query().length > 0) {
+    <div class="absolute z-50 mt-1 w-full py-3 text-center text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg">
+      Aucun résultat trouvé
+    </div>
+  }
+</div>

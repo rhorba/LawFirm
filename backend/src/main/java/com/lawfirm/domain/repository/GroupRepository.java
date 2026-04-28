@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface GroupRepository extends JpaRepository<Group, Long> {
 
-    @Query("SELECT DISTINCT g FROM Group g LEFT JOIN FETCH g.roles WHERE g.id = :id")
+    @Query("SELECT DISTINCT g FROM Group g LEFT JOIN FETCH g.roles LEFT JOIN FETCH g.permissions WHERE g.id = :id")
     Optional<Group> findByIdWithRoles(@Param("id") Long id);
 
     @Query("SELECT DISTINCT g FROM Group g LEFT JOIN FETCH g.roles LEFT JOIN FETCH g.users WHERE g.id = :id")

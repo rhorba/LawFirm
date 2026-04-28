@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     boolean existsByEmailAndDeletedAtIsNull(String email);
 
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.groups g LEFT JOIN FETCH g.roles r LEFT JOIN FETCH r.permissions WHERE u.username = :username AND u.deletedAt IS NULL")
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.groups g LEFT JOIN FETCH g.permissions WHERE u.username = :username AND u.deletedAt IS NULL")
     Optional<User> findByUsernameWithRolesAndPermissions(String username);
 
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.groups g LEFT JOIN FETCH g.roles WHERE u.id = :id AND u.deletedAt IS NULL")

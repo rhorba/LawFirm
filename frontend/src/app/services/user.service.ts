@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   UserResponse,
   RoleResponse,
+  PermissionResponse,
   PageResponse,
   CreateUserRequest,
   UpdateUserRequest,
@@ -68,5 +69,9 @@ export class UserService {
 
   getRoles(): Observable<RoleResponse[]> {
     return this.http.get<RoleResponse[]>(`${environment.apiUrl}/roles`);
+  }
+
+  getPermissions(): Observable<PermissionResponse[]> {
+    return this.http.get<PermissionResponse[]>(`${environment.apiUrl}/permissions`);
   }
 }

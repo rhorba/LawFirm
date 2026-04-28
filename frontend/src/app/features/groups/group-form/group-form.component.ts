@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { GroupService } from '../../../core/services/group.service';
 import { UserService } from '../../../services/user.service';
 import { GroupRequest } from '../../../core/models/group.model';
-import { RoleResponse } from '../../../core/models/user.model';
+import { PermissionResponse, RoleResponse } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-group-form',
@@ -23,6 +23,8 @@ export class GroupFormComponent implements OnInit {
 
   groupForm: FormGroup;
   roles: RoleResponse[] = [];
+  permissions: PermissionResponse[] = [];
+  permissionsByResource: { resource: string; items: PermissionResponse[] }[] = [];
   isEditMode = false;
   groupId: number | null = null;
   loading = false;
@@ -33,11 +35,13 @@ export class GroupFormComponent implements OnInit {
       name: ['', [Validators.required, Validators.maxLength(100)]],
       description: ['', Validators.maxLength(255)],
       roleIds: [[]],
+      permissionIds: [[]],
     });
   }
 
   ngOnInit(): void {
     this.loadRoles();
+    this.loadPermissions();
 
     this.route.params.subscribe((params) => {
       if (params['id']) {
@@ -59,6 +63,27 @@ export class GroupFormComponent implements OnInit {
     });
   }
 
+  loadPermissions(): void {
+    this.userService.getPermissions().subscribe({
+      next: (data) => {
+        this.permissions = data;
+        this.permissionsByResource = this.groupByResource(data);
+      },
+      error: (err) => {
+        console.error('Failed to load permissions', err);
+      },
+    });
+  }
+
+  private groupByResource(perms: PermissionResponse[]): { resource: string; items: PermissionResponse[] }[] {
+    const map = new Map<string, PermissionResponse[]>();
+    for (const p of perms) {
+      if (!map.has(p.resource)) map.set(p.resource, []);
+      map.get(p.resource)!.push(p);
+    }
+    return Array.from(map.entries()).map(([resource, items]) => ({ resource, items }));
+  }
+
   loadGroup(id: number): void {
     this.groupService.getGroupById(id).subscribe({
       next: (group) => {
@@ -66,6 +91,7 @@ export class GroupFormComponent implements OnInit {
           name: group.name,
           description: group.description,
           roleIds: group.roles.map((r) => r.id),
+          permissionIds: (group.permissions ?? []).map((p) => p.id),
         });
       },
       error: (err) => {
@@ -76,21 +102,33 @@ export class GroupFormComponent implements OnInit {
   }
 
   toggleRole(roleId: number): void {
-    const roleIds = this.groupForm.get('roleIds')?.value || [];
+    const roleIds: number[] = this.groupForm.get('roleIds')?.value ?? [];
     const index = roleIds.indexOf(roleId);
-
     if (index > -1) {
       roleIds.splice(index, 1);
     } else {
       roleIds.push(roleId);
     }
-
     this.groupForm.patchValue({ roleIds });
   }
 
   isRoleSelected(roleId: number): boolean {
-    const roleIds = this.groupForm.get('roleIds')?.value || [];
-    return roleIds.includes(roleId);
+    return (this.groupForm.get('roleIds')?.value ?? []).includes(roleId);
+  }
+
+  togglePermission(permId: number): void {
+    const permissionIds: number[] = this.groupForm.get('permissionIds')?.value ?? [];
+    const index = permissionIds.indexOf(permId);
+    if (index > -1) {
+      permissionIds.splice(index, 1);
+    } else {
+      permissionIds.push(permId);
+    }
+    this.groupForm.patchValue({ permissionIds });
+  }
+
+  isPermissionSelected(permId: number): boolean {
+    return (this.groupForm.get('permissionIds')?.value ?? []).includes(permId);
   }
 
   onSubmit(): void {
