@@ -67,19 +67,23 @@ Enterprise-grade legal practice management system designed to streamline case ma
 - ✅ Permission-based UI (CLIENT_READ, CLIENT_CREATE, CLIENT_UPDATE, CLIENT_DELETE)
 
 **Reference Data Management:**
-- ✅ Tribunals: 9 seeded bilingual entries (French/Arabic names)
-- ✅ Case types: 5 types (CIVIL, PENAL, COMMERCIAL, SOCIAL, ADMIN)
-- ✅ Case categories: 17+ seeded, linked to case types
+- ✅ Tribunals: 125 bilingual entries (full Moroccan court system, French/Arabic names)
+- ✅ Case types: 4 types (CIVIL, PENAL, COMMERCIAL, SOCIAL)
+- ✅ Case categories: 426 seeded, linked to case types
 - ✅ Case statuses: 7 statuses with terminal flags
 - ✅ Status workflow mapping (allowed transitions per case type)
 - ✅ Global reference data caching (loaded at app initialization)
 
-**Financial Infrastructure (Backend Only):**
+**Financial Management (Full Stack):**
 - ✅ FinancialTransaction entity and repository
 - ✅ Transaction types: opening fees, procedure fees, expert fees, etc.
 - ✅ Payment methods tracking
 - ✅ Financial summary aggregation per case (payments, expenses, balance)
-- ⏳ **UI for transaction management — not yet implemented**
+- ✅ Financial Ledger UI (`/financial/ledger`): paginated transaction list, filters, summary cards, Excel export
+- ✅ Invoice Management UI (`/financial/invoices`): list, detail, create form, payment modal
+- ✅ Invoice→transaction auto-sync on PAID status change
+- ✅ Financial tab embedded in case detail view (per-case transactions + summary)
+- ✅ FINANCE_* and INVOICE_* permissions seeded and enforced
 
 ---
 
@@ -89,7 +93,6 @@ The following features are **defined in roadmap but have no implementation yet**
 
 | Feature | Backend | Frontend | Priority |
 |---------|---------|----------|----------|
-| Financial Ledger UI (transaction management) | ✅ Done | ❌ Pending | **Next Up** |
 | Time Tracking & Billing | ❌ | ❌ | High |
 | Document Management | ❌ | ❌ | High |
 | Deadline & Task Management | ❌ | ❌ | High |
@@ -113,7 +116,7 @@ The following features are **defined in roadmap but have no implementation yet**
 - **Security**: Role-Based Access Control (RBAC) with 20+ granular permissions
 - **Authentication**: JWT with refresh tokens
 - **Architecture**: Hexagonal/Clean Architecture (backend), layer-based (frontend)
-- **Database**: Flyway migrations (45), seeded reference data, optimized indexing
+- **Database**: Flyway migrations (62), seeded reference data, optimized indexing
 - **API Documentation**: SpringDoc OpenAPI (Swagger UI)
 - **Observability**: Logback JSON logging, Spring Actuator endpoints
 - **Code Quality**: Checkstyle, SpotBugs, JaCoCo (70%), ESLint, Prettier
@@ -202,16 +205,16 @@ Access:
 LawFirm/
 ├── backend/                           # Spring Boot 3.4 + Java 21
 │   ├── src/main/java/com/lawfirm/
-│   │   ├── domain/model/              # 21 JPA entities
-│   │   ├── domain/repository/         # 18 repositories (+ JPA Specifications)
-│   │   ├── application/dto/           # 39 DTOs (18 request, 21 response)
-│   │   ├── application/mapper/        # 14 MapStruct mappers
-│   │   ├── application/service/       # 15 services with business logic
+│   │   ├── domain/model/              # 23 JPA entities
+│   │   ├── domain/repository/         # 17 repositories (+ 2 JPA Specifications)
+│   │   ├── application/dto/           # 49 DTOs (23 request, 26 response)
+│   │   ├── application/mapper/        # 16 MapStruct mappers
+│   │   ├── application/service/       # 17 services with business logic
 │   │   ├── infrastructure/security/   # JWT, RBAC, filters
 │   │   ├── infrastructure/config/     # CORS, Security, Rate limiting
-│   │   └── presentation/controller/  # 14 REST controllers
+│   │   └── presentation/controller/  # 17 REST controllers
 │   ├── src/main/resources/
-│   │   ├── db/migration/              # 45 Flyway SQL migrations (V1–V45)
+│   │   ├── db/migration/              # 62 Flyway SQL migrations (V1–V62)
 │   │   └── application*.yml
 │   └── pom.xml
 │
@@ -220,7 +223,7 @@ LawFirm/
 │   │   ├── core/
 │   │   │   ├── guards/                # authGuard
 │   │   │   ├── interceptors/          # auth, error interceptors
-│   │   │   ├── models/                # 7 TypeScript interfaces
+│   │   │   ├── models/                # 8 TypeScript interfaces
 │   │   │   └── services/              # AuthService, TokenService, ThemeService, GroupService
 │   │   ├── features/
 │   │   │   ├── auth/                  # Login, Register (✅)
@@ -234,12 +237,12 @@ LawFirm/
 │   │   │   ├── audit-logs/            # Audit log viewer (✅)
 │   │   │   ├── profile/               # User profile (✅)
 │   │   │   ├── settings/              # App settings (✅)
-│   │   │   ├── financial/             # ⏳ Not yet implemented
+│   │   │   ├── financial/             # Financial ledger + invoices (✅)
 │   │   │   ├── documents/             # ⏳ Not yet implemented
 │   │   │   ├── tasks/                 # ⏳ Not yet implemented
 │   │   │   ├── calendar/              # ⏳ Not yet implemented
 │   │   │   └── reports/               # ⏳ Not yet implemented
-│   │   └── services/                  # 15 API integration services
+│   │   └── services/                  # 16 API integration services
 │   └── package.json
 │
 ├── docs/plans/                        # Implementation plans (historical)
@@ -320,11 +323,27 @@ GET    /api/case-categories         All categories (filterable by type)
 GET    /api/case-statuses           All statuses
 ```
 
-### Audit & Roles
+### Financial
+```
+GET    /api/financial/transactions               List transactions (paginated, filtered)
+POST   /api/financial/transactions               Create a transaction
+DELETE /api/financial/transactions/:id           Soft-delete a transaction
+GET    /api/financial/transactions/export/excel  Export transactions as Excel
+GET    /api/financial/cases/:caseId/transactions All transactions for a case
+
+GET    /api/financial/invoices                   List invoices (paginated)
+POST   /api/financial/invoices                   Create invoice with line items
+GET    /api/financial/invoices/:id               Get invoice detail
+PATCH  /api/financial/invoices/:id/status        Transition invoice status
+DELETE /api/financial/invoices/:id               Soft-delete invoice
+```
+
+### Audit, Roles & Permissions
 ```
 GET    /api/audit-logs              List audit logs (paginated, filtered)
 GET    /api/audit-logs/:id          Get audit log entry
 GET    /api/roles                   List roles
+GET    /api/permissions             List all permissions
 ```
 
 ---
@@ -361,8 +380,16 @@ The following permissions are **seeded in the database** and enforced at the API
 | `CLIENT_UPDATE` | Modify clients |
 | `CLIENT_DELETE` | Delete clients |
 | `USER_ROLE_READ` | View user-role assignments |
+| `FINANCIAL_READ` | View financial transactions |
+| `FINANCIAL_CREATE` | Create financial transactions |
+| `FINANCIAL_UPDATE` | Modify/delete financial transactions |
+| `FINANCIAL_DELETE` | Hard-delete financial transactions |
+| `FINANCIAL_MANAGE` | Full financial management |
+| `INVOICE_READ` | View invoices |
+| `INVOICE_CREATE` | Create invoices |
+| `INVOICE_MANAGE` | Update status and delete invoices |
 
-**Planned (not yet seeded):** `FINANCE_*`, `DOCUMENT_*`, `TIME_*`, `BILLING_*`, `CALENDAR_*`, `TASK_*`, `REPORT_*`, `COMMUNICATION_*`, `AUDIT_VIEW`, `BACKUP_MANAGE`
+**Planned (not yet seeded):** `DOCUMENT_*`, `TIME_*`, `BILLING_*`, `CALENDAR_*`, `TASK_*`, `REPORT_*`, `COMMUNICATION_*`, `AUDIT_VIEW`, `BACKUP_MANAGE`
 
 ---
 

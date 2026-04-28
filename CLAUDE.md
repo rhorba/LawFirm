@@ -42,13 +42,13 @@ Core infrastructure: authentication, authorization, user management, group manag
 
 All core legal operations (cases, lawyers, clients, reference data) are production-ready.
 
-### 🔄 Phase 3 — Financial Ledger (Next Up)
+### ✅ Phase 3 — Financial Ledger (Complete)
 
-Backend entities/repositories exist. **UI not yet implemented.**
+Full-stack financial management: transactions ledger, invoice management, per-case financial tab, Excel export, invoice→transaction auto-sync.
 
 ### ⏳ Phase 4+ — Remaining Features (Not Started)
 
-Financial UI → Time Tracking → Documents → Tasks → Calendar → Reporting → Communication
+Time Tracking → Documents → Tasks → Calendar → Reporting → Communication
 
 ---
 
@@ -65,8 +65,8 @@ Financial UI → Time Tracking → Documents → Tasks → Calendar → Reportin
 | Lawyer Management | ✅ | ✅ | Full CRUD, pagination, bulk deactivate |
 | Client Management | ✅ | ✅ | Full CRUD, CIN uniqueness, case linking |
 | Reference Data | ✅ | ✅ | Bilingual tribunals, types, statuses |
-| Financial Infrastructure | ✅ | ❌ | Entities done, UI not started |
-| Financial Ledger UI | ❌ | ❌ | **Next priority** |
+| Financial Infrastructure | ✅ | ✅ | Ledger, invoices, per-case tab, Excel export |
+| Invoice Management | ✅ | ✅ | Full CRUD, PAID sync to transactions |
 | Time Tracking & Billing | ❌ | ❌ | Planned |
 | Document Management | ❌ | ❌ | Planned |
 | Deadline & Task Management | ❌ | ❌ | Planned |
@@ -79,17 +79,17 @@ Financial UI → Time Tracking → Documents → Tasks → Calendar → Reportin
 
 ### 📊 Codebase Metrics (Current)
 
-**Backend:** 143 Java files
-- 21 domain entities, 18 repositories, 39 DTOs, 14 MapStruct mappers
-- 15 services, 14 controllers, 9 custom exceptions
-- 45 Flyway migrations (V1–V45)
+**Backend:** 162 Java files
+- 23 domain entities, 17 repositories (+ 2 Specifications), 49 DTOs, 16 MapStruct mappers
+- 17 services, 17 controllers, 9 custom exceptions
+- 62 Flyway migrations (V1–V62)
 
 **Frontend:** Angular 18 standalone
-- 23 components, 15 API services, 7 TypeScript models
+- 30 components, 16 API services, 8 TypeScript models
 - 1 auth guard, 2 HTTP interceptors
 - All routes lazy-loaded
 
-**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions
+**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, group_permissions, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions, invoices, invoice_items
 
 ---
 
@@ -261,13 +261,16 @@ docker-compose -f docker-compose.prod.yml up --build
 - Username: `admin`
 - Password: `admin123`
 
-### 📊 Seeded Permissions (26+)
+### 📊 Seeded Permissions (37+)
 
 **User & Role Management (13):**
 USER_READ, USER_CREATE, USER_UPDATE, USER_DELETE, USER_MANAGE, ROLE_READ, ROLE_CREATE, ROLE_UPDATE, ROLE_DELETE, ROLE_MANAGE, PERMISSION_READ, PERMISSION_MANAGE, SYSTEM_MANAGE
 
 **Legal Domain (12):**
 CASE_READ, CASE_CREATE, CASE_UPDATE, CASE_DELETE, LAWYER_READ, LAWYER_CREATE, LAWYER_UPDATE, LAWYER_DELETE, CLIENT_READ, CLIENT_CREATE, CLIENT_UPDATE, CLIENT_DELETE
+
+**Financial (11):**
+FINANCIAL_READ, FINANCIAL_CREATE, FINANCIAL_UPDATE, FINANCIAL_DELETE, FINANCIAL_MANAGE, INVOICE_READ, INVOICE_CREATE, INVOICE_UPDATE, INVOICE_DELETE, INVOICE_MANAGE, FINANCIAL_EXPORT
 
 **Other (1+):** USER_ROLE_READ
 
@@ -338,7 +341,7 @@ LawFirm/
 │   │       ├── lawyer/                # Lawyer management endpoints
 │   │       └── financial/             # Financial endpoints
 │   ├── src/main/resources/
-│   │   ├── db/migration/              # Flyway migrations (V1-V45)
+│   │   ├── db/migration/              # Flyway migrations (V1-V62)
 │   │   └── application*.yml           # Configuration
 │   └── pom.xml
 ├── frontend/                          # Angular 18 Standalone
@@ -356,12 +359,12 @@ LawFirm/
 │   │   │   ├── audit-logs/            # Audit log viewer ✅
 │   │   │   ├── profile/               # User profile ✅
 │   │   │   ├── settings/              # App settings ✅
-│   │   │   ├── financial/             # ⏳ Not implemented
+│   │   │   ├── financial/             # Financial ledger + invoices ✅
 │   │   │   ├── documents/             # ⏳ Not implemented
 │   │   │   ├── tasks/                 # ⏳ Not implemented
 │   │   │   ├── calendar/              # ⏳ Not implemented
 │   │   │   └── reports/               # ⏳ Not implemented
-│   │   └── services/                  # 15 API integration services
+│   │   └── services/                  # 16 API integration services
 │   ├── angular.json
 │   ├── tailwind.config.js
 │   └── package.json
