@@ -69,7 +69,7 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 | Invoice Management | ✅ | ✅ | Full CRUD, PAID sync to transactions |
 | Time Tracking & Billing | ❌ | ❌ | Planned |
 | Document Management | ❌ | ❌ | Planned |
-| Deadline & Task Management | ❌ | ❌ | Planned |
+| Deadline & Task Management | ✅ | ✅ | Tasks + comments + upcoming dashboard widget |
 | Calendar & Scheduling | ❌ | ❌ | Planned |
 | Reporting & Analytics | ❌ | ❌ | Planned |
 | Communication Management | ❌ | ❌ | Planned |
