@@ -38,7 +38,29 @@
       "Bash(xargs sed:*)",
       "Bash(mvn compile:*)",
       "Bash(pnpm exec tsc:*)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(# Kill existing backend processes and restart, capturing full logs pkill -f \"\"LawFirmApplication\"\" ; sleep 2 cd \"\"C:/Users/moham/OneDrive - um5.ac.ma/Desktop/LawFirm/backend\"\" mvn spring-boot:run -Dspring-boot.run.profiles=dev 2>&1)",
+      "Bash(# Find and kill Java process on port 8080 netstat -ano)",
+      "Bash(wmic process:*)",
+      "Bash(echo:*)",
+      "Bash(cmd /c \"taskkill /F /T /PID 14700\")",
+      "Bash(tasklist:*)",
+      "Bash(python3:*)",
+      "Bash(tail:*)",
+      "Bash(mvn flyway:info:*)",
+      "Bash(pkill:*)",
+      "Bash(cmd:*)",
+      "Bash(pnpm build:*)",
+      "Bash(python:*)",
+      "Bash(node:*)",
+      "Bash(mvn flyway:migrate:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx eslint:*)",
+      "Bash(sed:*)",
+      "Bash(npm install:*)",
+      "Bash(pip install *)"
     ]
   }
 }

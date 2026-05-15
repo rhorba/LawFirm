@@ -15,7 +15,7 @@ Focus: Type-safety, audit trails, bilingual support (French/Arabic), RBAC securi
 
 ## Tech Stack
 - **Backend**: Java 21, Spring Boot 3.4, Spring Data JPA, Flyway, MapStruct, Lombok.
-- **Frontend**: React 18+ (Vite) OR Angular 18+, Tailwind CSS, TanStack Query.
+- **Frontend**: Angular 18 (Standalone Components, Signals), Tailwind CSS, TanStack Query.
 - **Database**: PostgreSQL.
 - **Build**: Maven (Global), PNPM (Global).
 
