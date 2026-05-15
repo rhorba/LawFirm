@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { UpcomingDeadlinesComponent } from './upcoming-deadlines.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, UpcomingDeadlinesComponent],
   template: `
     <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Dashboard</h1>
 
@@ -28,6 +29,12 @@ import { AuthService } from '../../core/services/auth.service';
             }
           </div>
         </div>
+      </div>
+    }
+
+    @if (authService.hasPermission('TASK_READ')) {
+      <div class="mb-6">
+        <app-upcoming-deadlines />
       </div>
     }
 

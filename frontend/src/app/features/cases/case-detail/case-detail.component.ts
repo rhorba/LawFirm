@@ -11,13 +11,14 @@ import {
 } from '../../../core/models/case.model';
 import { ChangeStatusModalComponent } from '../change-status-modal/change-status-modal.component';
 import { FinancialTabComponent } from './financial-tab/financial-tab.component';
+import { TasksTabComponent } from './tasks-tab/tasks-tab.component';
 import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-case-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ChangeStatusModalComponent, DatePipe, FinancialTabComponent, SearchableSelectComponent, FormsModule],
+  imports: [CommonModule, RouterLink, ChangeStatusModalComponent, DatePipe, FinancialTabComponent, TasksTabComponent, SearchableSelectComponent, FormsModule],
   templateUrl: './case-detail.component.html',
 })
 export class CaseDetailComponent implements OnInit {
@@ -35,7 +36,7 @@ export class CaseDetailComponent implements OnInit {
   // New: children, history, active tab
   children = signal<CaseSummaryResponse[]>([]);
   history = signal<AuditLogResponse[]>([]);
-  activeTab = signal<'details' | 'children' | 'history' | 'financial'>('details');
+  activeTab = signal<'details' | 'children' | 'history' | 'financial' | 'tasks'>('details');
 
   // Client assignment
   showClientAssign = signal(false);
@@ -45,6 +46,7 @@ export class CaseDetailComponent implements OnInit {
   canUpdate = this.authService.hasPermission('CASE_UPDATE');
   canDelete = this.authService.hasPermission('CASE_DELETE');
   canViewFinancials = this.authService.hasPermission('FINANCIAL_READ');
+  canViewTasks = this.authService.hasPermission('TASK_READ');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

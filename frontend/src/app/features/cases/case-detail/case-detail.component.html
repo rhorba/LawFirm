@@ -290,6 +290,18 @@
                   Finances
                 </button>
               }
+              @if (canViewTasks) {
+                <button
+                  (click)="activeTab.set('tasks')"
+                  [class.border-indigo-500]="activeTab() === 'tasks'"
+                  [class.text-indigo-600]="activeTab() === 'tasks'"
+                  [class.dark:text-indigo-400]="activeTab() === 'tasks'"
+                  [class.border-transparent]="activeTab() !== 'tasks'"
+                  [class.text-gray-500]="activeTab() !== 'tasks'"
+                  class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                  Tâches
+                </button>
+              }
             </nav>
           </div>
 
@@ -385,6 +397,11 @@
             <!-- Financial Tab -->
             @if (activeTab() === 'financial') {
               <app-financial-tab [caseId]="case.id" />
+            }
+
+            <!-- Tasks Tab -->
+            @if (activeTab() === 'tasks') {
+              <app-tasks-tab [caseId]="case.id" />
             }
           </div>
         </div>
