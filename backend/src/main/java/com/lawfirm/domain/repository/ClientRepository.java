@@ -34,4 +34,9 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
         @Param("type") ClientType type,
         Pageable pageable
     );
+
+    @Query("SELECT c FROM Client c WHERE " +
+           "LOWER(CONCAT(COALESCE(c.firstName,''), ' ', COALESCE(c.lastName,''))) LIKE LOWER(CONCAT('%',:name,'%')) OR " +
+           "LOWER(c.companyName) LIKE LOWER(CONCAT('%',:name,'%'))")
+    java.util.List<Client> searchByName(@Param("name") String name);
 }

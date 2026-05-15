@@ -12,13 +12,24 @@ import {
 import { ChangeStatusModalComponent } from '../change-status-modal/change-status-modal.component';
 import { FinancialTabComponent } from './financial-tab/financial-tab.component';
 import { TasksTabComponent } from './tasks-tab/tasks-tab.component';
+import { PartiesTabComponent } from './parties-tab/parties-tab.component';
 import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-case-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, ChangeStatusModalComponent, DatePipe, FinancialTabComponent, TasksTabComponent, SearchableSelectComponent, FormsModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    ChangeStatusModalComponent,
+    DatePipe,
+    FinancialTabComponent,
+    TasksTabComponent,
+    PartiesTabComponent,
+    SearchableSelectComponent,
+    FormsModule,
+  ],
   templateUrl: './case-detail.component.html',
 })
 export class CaseDetailComponent implements OnInit {
@@ -36,7 +47,9 @@ export class CaseDetailComponent implements OnInit {
   // New: children, history, active tab
   children = signal<CaseSummaryResponse[]>([]);
   history = signal<AuditLogResponse[]>([]);
-  activeTab = signal<'details' | 'children' | 'history' | 'financial' | 'tasks'>('details');
+  activeTab = signal<'details' | 'children' | 'history' | 'financial' | 'tasks' | 'parties'>(
+    'details'
+  );
 
   // Client assignment
   showClientAssign = signal(false);
@@ -47,6 +60,7 @@ export class CaseDetailComponent implements OnInit {
   canDelete = this.authService.hasPermission('CASE_DELETE');
   canViewFinancials = this.authService.hasPermission('FINANCIAL_READ');
   canViewTasks = this.authService.hasPermission('TASK_READ');
+  canViewParties = this.authService.hasPermission('CONFLICT_READ');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -148,31 +162,33 @@ export class CaseDetailComponent implements OnInit {
   }
 
   readonly fieldLabels: Record<string, string> = {
-    fullCaseNumber:    'N° dossier',
-    tribunal:          'Tribunal',
-    caseType:          'Type d\'affaire',
-    caseCategory:      'Catégorie',
-    status:            'Statut',
-    priority:          'Priorité',
-    lawyers:           'Avocats',
-    clientName:        'Client',
-    registrationDate:  'Date d\'enregistrement',
-    caseDescription:   'Description',
+    fullCaseNumber: 'N° dossier',
+    tribunal: 'Tribunal',
+    caseType: "Type d'affaire",
+    caseCategory: 'Catégorie',
+    status: 'Statut',
+    priority: 'Priorité',
+    lawyers: 'Avocats',
+    clientName: 'Client',
+    registrationDate: "Date d'enregistrement",
+    caseDescription: 'Description',
     matterDescription: 'Objet',
-    opposingParty:     'Partie adverse',
-    outcome:           'Résultat',
-    outcomeNotes:      'Notes de résultat',
-    fiscalYear:        'Exercice fiscal',
-    initialPaymentDate:'Date de paiement initial',
+    opposingParty: 'Partie adverse',
+    outcome: 'Résultat',
+    outcomeNotes: 'Notes de résultat',
+    fiscalYear: 'Exercice fiscal',
+    initialPaymentDate: 'Date de paiement initial',
   };
 
-  getDiffRows(log: AuditLogResponse): { field: string; label: string; before: string; after: string }[] {
+  getDiffRows(
+    log: AuditLogResponse
+  ): { field: string; label: string; before: string; after: string }[] {
     if (!log.newValues) return [];
     const before = log.oldValues ?? {};
     const after = log.newValues;
     return Object.keys(after)
-      .filter(k => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
-      .map(k => ({
+      .filter((k) => JSON.stringify(before[k]) !== JSON.stringify(after[k]))
+      .map((k) => ({
         field: k,
         label: this.fieldLabels[k] ?? k,
         before: this.formatValue(before[k]),
@@ -192,8 +208,8 @@ export class CaseDetailComponent implements OnInit {
   // kept for backward compatibility with pre-snapshot audit entries
   getAuditDiffKeys(log: AuditLogResponse): string[] {
     const keys = new Set<string>();
-    if (log.oldValues) Object.keys(log.oldValues).forEach(k => keys.add(k));
-    if (log.newValues) Object.keys(log.newValues).forEach(k => keys.add(k));
+    if (log.oldValues) Object.keys(log.oldValues).forEach((k) => keys.add(k));
+    if (log.newValues) Object.keys(log.newValues).forEach((k) => keys.add(k));
     return Array.from(keys);
   }
 

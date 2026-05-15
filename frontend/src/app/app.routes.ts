@@ -148,6 +148,13 @@ export const routes: Routes = [
           import('./features/calendar/calendar.component').then((m) => m.CalendarComponent),
       },
       {
+        path: 'conflicts',
+        loadComponent: () =>
+          import('./features/conflicts/conflict-check.component').then(
+            (m) => m.ConflictCheckComponent
+          ),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./features/settings/settings.component').then((m) => m.SettingsComponent),

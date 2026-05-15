@@ -302,6 +302,18 @@
                   Tâches
                 </button>
               }
+              @if (canViewParties) {
+                <button
+                  (click)="activeTab.set('parties')"
+                  [class.border-indigo-500]="activeTab() === 'parties'"
+                  [class.text-indigo-600]="activeTab() === 'parties'"
+                  [class.dark:text-indigo-400]="activeTab() === 'parties'"
+                  [class.border-transparent]="activeTab() !== 'parties'"
+                  [class.text-gray-500]="activeTab() !== 'parties'"
+                  class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                  Parties
+                </button>
+              }
             </nav>
           </div>
 
@@ -402,6 +414,11 @@
             <!-- Tasks Tab -->
             @if (activeTab() === 'tasks') {
               <app-tasks-tab [caseId]="case.id" />
+            }
+
+            <!-- Parties Tab -->
+            @if (activeTab() === 'parties') {
+              <app-parties-tab [caseId]="case.id" />
             }
           </div>
         </div>
