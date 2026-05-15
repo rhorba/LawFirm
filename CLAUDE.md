@@ -67,7 +67,7 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 | Reference Data | ✅ | ✅ | Bilingual tribunals, types, statuses |
 | Financial Infrastructure | ✅ | ✅ | Ledger, invoices, per-case tab, Excel export |
 | Invoice Management | ✅ | ✅ | Full CRUD, PAID sync to transactions |
-| Time Tracking & Billing | ❌ | ❌ | Planned |
+| Time Tracking & Billing | ✅ | ✅ | Per-case entries, hourly rate, billable/billed flags, summary widget |
 | Document Management | ❌ | ❌ | Planned |
 | Deadline & Task Management | ✅ | ✅ | Tasks + comments + upcoming dashboard widget |
 | Calendar & Scheduling | ✅ | ✅ | Month grid, HEARING/APPOINTMENT/REMINDER events, task deadlines merged |
@@ -79,17 +79,17 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 
 ### 📊 Codebase Metrics (Current)
 
-**Backend:** 162 Java files
-- 23 domain entities, 17 repositories (+ 2 Specifications), 49 DTOs, 16 MapStruct mappers
-- 17 services, 17 controllers, 9 custom exceptions
-- 62 Flyway migrations (V1–V62)
+**Backend:** ~185 Java files
+- 27 domain entities, 22 repositories, 60+ DTOs, 20 MapStruct mappers
+- 21 services, 21 controllers, 9 custom exceptions
+- 72 Flyway migrations (V1–V72)
 
 **Frontend:** Angular 18 standalone
-- 30 components, 16 API services, 8 TypeScript models
+- 37 components, 19 API services, 12 TypeScript models
 - 1 auth guard, 2 HTTP interceptors
 - All routes lazy-loaded
 
-**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, group_permissions, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions, invoices, invoice_items
+**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, group_permissions, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions, invoices, invoice_items, tasks, task_comments, calendar_events, conflict_parties, conflict_checks, time_entries
 
 ---
 
