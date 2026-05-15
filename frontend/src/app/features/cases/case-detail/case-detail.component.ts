@@ -13,6 +13,7 @@ import { ChangeStatusModalComponent } from '../change-status-modal/change-status
 import { FinancialTabComponent } from './financial-tab/financial-tab.component';
 import { TasksTabComponent } from './tasks-tab/tasks-tab.component';
 import { PartiesTabComponent } from './parties-tab/parties-tab.component';
+import { TimeTabComponent } from './time-tab/time-tab.component';
 import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 import { FormsModule } from '@angular/forms';
 
@@ -27,6 +28,7 @@ import { FormsModule } from '@angular/forms';
     FinancialTabComponent,
     TasksTabComponent,
     PartiesTabComponent,
+    TimeTabComponent,
     SearchableSelectComponent,
     FormsModule,
   ],
@@ -47,9 +49,9 @@ export class CaseDetailComponent implements OnInit {
   // New: children, history, active tab
   children = signal<CaseSummaryResponse[]>([]);
   history = signal<AuditLogResponse[]>([]);
-  activeTab = signal<'details' | 'children' | 'history' | 'financial' | 'tasks' | 'parties'>(
-    'details'
-  );
+  activeTab = signal<
+    'details' | 'children' | 'history' | 'financial' | 'tasks' | 'parties' | 'time'
+  >('details');
 
   // Client assignment
   showClientAssign = signal(false);
@@ -61,6 +63,7 @@ export class CaseDetailComponent implements OnInit {
   canViewFinancials = this.authService.hasPermission('FINANCIAL_READ');
   canViewTasks = this.authService.hasPermission('TASK_READ');
   canViewParties = this.authService.hasPermission('CONFLICT_READ');
+  canViewTime = this.authService.hasPermission('TIME_READ');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

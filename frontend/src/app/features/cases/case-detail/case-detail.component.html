@@ -314,6 +314,18 @@
                   Parties
                 </button>
               }
+              @if (canViewTime) {
+                <button
+                  (click)="activeTab.set('time')"
+                  [class.border-indigo-500]="activeTab() === 'time'"
+                  [class.text-indigo-600]="activeTab() === 'time'"
+                  [class.dark:text-indigo-400]="activeTab() === 'time'"
+                  [class.border-transparent]="activeTab() !== 'time'"
+                  [class.text-gray-500]="activeTab() !== 'time'"
+                  class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                  Temps
+                </button>
+              }
             </nav>
           </div>
 
@@ -419,6 +431,11 @@
             <!-- Parties Tab -->
             @if (activeTab() === 'parties') {
               <app-parties-tab [caseId]="case.id" />
+            }
+
+            <!-- Time Tab -->
+            @if (activeTab() === 'time') {
+              <app-time-tab [caseId]="case.id" />
             }
           </div>
         </div>
