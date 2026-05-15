@@ -70,10 +70,10 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 | Time Tracking & Billing | ❌ | ❌ | Planned |
 | Document Management | ❌ | ❌ | Planned |
 | Deadline & Task Management | ✅ | ✅ | Tasks + comments + upcoming dashboard widget |
-| Calendar & Scheduling | ❌ | ❌ | Planned |
+| Calendar & Scheduling | ✅ | ✅ | Month grid, HEARING/APPOINTMENT/REMINDER events, task deadlines merged |
 | Reporting & Analytics | ❌ | ❌ | Planned |
 | Communication Management | ❌ | ❌ | Planned |
-| Client Conflict Checking | ❌ | ❌ | Planned |
+| Client Conflict Checking | ✅ | ✅ | Cross-entity conflict search, case parties, cleared-with-note workflow |
 | RTL / Arabic UI | ❌ | ❌ | Planned |
 | 2FA / Advanced Security | ❌ | ❌ | Planned |
 
