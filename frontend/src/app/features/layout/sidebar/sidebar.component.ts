@@ -33,6 +33,12 @@ export class SidebarComponent {
       route: '/financial',
       permission: 'FINANCIAL_READ',
     },
+    {
+      label: 'Calendrier',
+      icon: 'calendar_month',
+      route: '/calendar',
+      permission: 'CALENDAR_READ',
+    },
     { label: 'Users', icon: 'manage_accounts', route: '/users', permission: 'USER_READ' },
     { label: 'Groups', icon: 'group', route: '/groups', permission: 'SYSTEM_MANAGE' },
     { label: 'Audit Logs', icon: 'history', route: '/audit-logs', permission: 'SYSTEM_MANAGE' },

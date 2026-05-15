@@ -26,16 +26,12 @@ export const routes: Routes = [
       {
         path: 'cases',
         loadComponent: () =>
-          import('./features/cases/case-list/case-list.component').then(
-            (m) => m.CaseListComponent
-          ),
+          import('./features/cases/case-list/case-list.component').then((m) => m.CaseListComponent),
       },
       {
         path: 'cases/new',
         loadComponent: () =>
-          import('./features/cases/case-form/case-form.component').then(
-            (m) => m.CaseFormComponent
-          ),
+          import('./features/cases/case-form/case-form.component').then((m) => m.CaseFormComponent),
       },
       {
         path: 'cases/:id',
@@ -47,9 +43,7 @@ export const routes: Routes = [
       {
         path: 'cases/:id/edit',
         loadComponent: () =>
-          import('./features/cases/case-form/case-form.component').then(
-            (m) => m.CaseFormComponent
-          ),
+          import('./features/cases/case-form/case-form.component').then((m) => m.CaseFormComponent),
       },
       {
         path: 'lawyers',
@@ -122,31 +116,36 @@ export const routes: Routes = [
             path: 'ledger',
             loadComponent: () =>
               import('./features/financial/ledger/financial-ledger.component').then(
-                (m) => m.FinancialLedgerComponent,
+                (m) => m.FinancialLedgerComponent
               ),
           },
           {
             path: 'invoices',
             loadComponent: () =>
-              import(
-                './features/financial/invoices/invoice-list/invoice-list.component'
-              ).then((m) => m.InvoiceListComponent),
+              import('./features/financial/invoices/invoice-list/invoice-list.component').then(
+                (m) => m.InvoiceListComponent
+              ),
           },
           {
             path: 'invoices/new',
             loadComponent: () =>
-              import(
-                './features/financial/invoices/invoice-form/invoice-form.component'
-              ).then((m) => m.InvoiceFormComponent),
+              import('./features/financial/invoices/invoice-form/invoice-form.component').then(
+                (m) => m.InvoiceFormComponent
+              ),
           },
           {
             path: 'invoices/:id',
             loadComponent: () =>
-              import(
-                './features/financial/invoices/invoice-detail/invoice-detail.component'
-              ).then((m) => m.InvoiceDetailComponent),
+              import('./features/financial/invoices/invoice-detail/invoice-detail.component').then(
+                (m) => m.InvoiceDetailComponent
+              ),
           },
         ],
+      },
+      {
+        path: 'calendar',
+        loadComponent: () =>
+          import('./features/calendar/calendar.component').then((m) => m.CalendarComponent),
       },
       {
         path: 'settings',
