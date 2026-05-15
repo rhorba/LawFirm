@@ -4,6 +4,12 @@ spring:
   profiles:
     default: dev
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 21MB
+
   jpa:
     open-in-view: false
     hibernate:
@@ -33,6 +39,12 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     tags-sorter: alpha
+
+# Document Storage
+app:
+  storage:
+    documents-path: ${user.home}/lawfirm-documents
+    max-file-size-mb: 20
 
 # Actuator
 management:

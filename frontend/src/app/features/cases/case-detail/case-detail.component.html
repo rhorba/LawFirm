@@ -326,6 +326,18 @@
                   Temps
                 </button>
               }
+              @if (canViewDocuments) {
+                <button
+                  (click)="activeTab.set('documents')"
+                  [class.border-indigo-500]="activeTab() === 'documents'"
+                  [class.text-indigo-600]="activeTab() === 'documents'"
+                  [class.dark:text-indigo-400]="activeTab() === 'documents'"
+                  [class.border-transparent]="activeTab() !== 'documents'"
+                  [class.text-gray-500]="activeTab() !== 'documents'"
+                  class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                  Documents
+                </button>
+              }
             </nav>
           </div>
 
@@ -436,6 +448,11 @@
             <!-- Time Tab -->
             @if (activeTab() === 'time') {
               <app-time-tab [caseId]="case.id" />
+            }
+
+            <!-- Documents Tab -->
+            @if (activeTab() === 'documents') {
+              <app-documents-tab [caseId]="case.id" />
             }
           </div>
         </div>

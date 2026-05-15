@@ -14,6 +14,7 @@ import { FinancialTabComponent } from './financial-tab/financial-tab.component';
 import { TasksTabComponent } from './tasks-tab/tasks-tab.component';
 import { PartiesTabComponent } from './parties-tab/parties-tab.component';
 import { TimeTabComponent } from './time-tab/time-tab.component';
+import { DocumentsTabComponent } from './documents-tab/documents-tab.component';
 import { SearchableSelectComponent } from '../../../shared/searchable-select/searchable-select.component';
 import { FormsModule } from '@angular/forms';
 
@@ -29,6 +30,7 @@ import { FormsModule } from '@angular/forms';
     TasksTabComponent,
     PartiesTabComponent,
     TimeTabComponent,
+    DocumentsTabComponent,
     SearchableSelectComponent,
     FormsModule,
   ],
@@ -50,7 +52,7 @@ export class CaseDetailComponent implements OnInit {
   children = signal<CaseSummaryResponse[]>([]);
   history = signal<AuditLogResponse[]>([]);
   activeTab = signal<
-    'details' | 'children' | 'history' | 'financial' | 'tasks' | 'parties' | 'time'
+    'details' | 'children' | 'history' | 'financial' | 'tasks' | 'parties' | 'time' | 'documents'
   >('details');
 
   // Client assignment
@@ -64,6 +66,7 @@ export class CaseDetailComponent implements OnInit {
   canViewTasks = this.authService.hasPermission('TASK_READ');
   canViewParties = this.authService.hasPermission('CONFLICT_READ');
   canViewTime = this.authService.hasPermission('TIME_READ');
+  canViewDocuments = this.authService.hasPermission('DOCUMENT_READ');
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { forkJoin } from 'rxjs';
@@ -7,7 +7,12 @@ import { forkJoin } from 'rxjs';
 import { CaseService } from '../../../services/case.service';
 import { ReferenceDataService } from '../../../services/reference-data.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { CasePriority, CaseSummary, CaseSearchParams, PageResponse } from '../../../core/models/case.model';
+import {
+  CasePriority,
+  CaseSummary,
+  CaseSearchParams,
+  PageResponse,
+} from '../../../core/models/case.model';
 
 @Component({
   selector: 'app-case-list',
@@ -54,10 +59,26 @@ export class CaseListComponent implements OnInit, OnDestroy {
   filtersExpanded = signal(true);
 
   readonly priorityOptions: { value: CasePriority; label: string; cssClass: string }[] = [
-    { value: 'URGENT', label: 'Urgent', cssClass: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' },
-    { value: 'HIGH', label: 'High', cssClass: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' },
-    { value: 'NORMAL', label: 'Normal', cssClass: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' },
-    { value: 'LOW', label: 'Low', cssClass: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' },
+    {
+      value: 'URGENT',
+      label: 'Urgent',
+      cssClass: 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200',
+    },
+    {
+      value: 'HIGH',
+      label: 'High',
+      cssClass: 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200',
+    },
+    {
+      value: 'NORMAL',
+      label: 'Normal',
+      cssClass: 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
+    },
+    {
+      value: 'LOW',
+      label: 'Low',
+      cssClass: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
+    },
   ];
 
   // Sorting
@@ -376,16 +397,14 @@ export class CaseListComponent implements OnInit, OnDestroy {
 
     this.loading.set(true);
 
-    const deleteObs = Array.from(this.selectedIds()).map((id) =>
-      this.caseService.deleteCase(id)
-    );
+    const deleteObs = Array.from(this.selectedIds()).map((id) => this.caseService.deleteCase(id));
 
     forkJoin(deleteObs).subscribe({
       next: () => {
         this.selectedIds.set(new Set());
         this.loadCases();
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Failed to delete some cases. Please try again.');
         this.loading.set(false);
       },
