@@ -60,7 +60,8 @@
       "Bash(npx eslint:*)",
       "Bash(sed:*)",
       "Bash(npm install:*)",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(pnpm add *)"
     ]
   }
 }

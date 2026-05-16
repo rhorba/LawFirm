@@ -40,6 +40,19 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
+# Mail (override per profile)
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:25}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
 # Document Storage
 app:
   storage:

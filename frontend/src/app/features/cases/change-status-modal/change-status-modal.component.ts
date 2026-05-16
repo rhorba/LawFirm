@@ -1,4 +1,13 @@
-import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CaseService } from '../../../services/case.service';
@@ -38,7 +47,7 @@ export class ChangeStatusModalComponent implements OnInit {
     this.caseStatusService.getStatusesForCaseType(this.case.caseType.code).subscribe({
       next: (statuses) => {
         // Filter out current status
-        const available = statuses.filter(s => s.code !== this.case.status.code);
+        const available = statuses.filter((s) => s.code !== this.case.status.code);
         this.availableStatuses.set(available);
       },
       error: (err: unknown) => {

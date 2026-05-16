@@ -338,6 +338,18 @@
                   Documents
                 </button>
               }
+              @if (canViewCommunications) {
+                <button
+                  (click)="activeTab.set('communications')"
+                  [class.border-indigo-500]="activeTab() === 'communications'"
+                  [class.text-indigo-600]="activeTab() === 'communications'"
+                  [class.dark:text-indigo-400]="activeTab() === 'communications'"
+                  [class.border-transparent]="activeTab() !== 'communications'"
+                  [class.text-gray-500]="activeTab() !== 'communications'"
+                  class="py-4 px-4 border-b-2 text-sm font-medium transition-colors">
+                  Communications
+                </button>
+              }
             </nav>
           </div>
 
@@ -453,6 +465,11 @@
             <!-- Documents Tab -->
             @if (activeTab() === 'documents') {
               <app-documents-tab [caseId]="case.id" />
+            }
+
+            <!-- Communications Tab -->
+            @if (activeTab() === 'communications') {
+              <app-communications-tab [caseId]="case.id" />
             }
           </div>
         </div>

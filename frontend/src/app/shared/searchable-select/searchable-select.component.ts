@@ -67,10 +67,7 @@ export class SearchableSelectComponent implements ControlValueAccessor, OnDestro
         distinctUntilChanged(),
         switchMap((q) => {
           this.loading.set(true);
-          let params = new HttpParams()
-            .set(this.searchParam, q)
-            .set('page', '0')
-            .set('size', '20');
+          let params = new HttpParams().set(this.searchParam, q).set('page', '0').set('size', '20');
           Object.entries(this.additionalParams).forEach(([k, v]) => {
             params = params.set(k, v);
           });
@@ -119,8 +116,7 @@ export class SearchableSelectComponent implements ControlValueAccessor, OnDestro
     if (this.multiple) {
       const existing = this.selectedValues();
       const idx = existing.findIndex((v) => v.value === option.value);
-      const updated =
-        idx > -1 ? existing.filter((_, i) => i !== idx) : [...existing, option];
+      const updated = idx > -1 ? existing.filter((_, i) => i !== idx) : [...existing, option];
       this.selectedValues.set(updated);
       this.onChange(updated.map((v) => v.value));
       this.selectionChange.emit(updated);

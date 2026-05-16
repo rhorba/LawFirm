@@ -49,13 +49,11 @@ export class LawyerListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Setup debounced search
-    this.searchSubject
-      .pipe(debounceTime(300))
-      .subscribe((term) => {
-        this.searchTerm.set(term);
-        this.page.set(0);
-        this.loadLawyers();
-      });
+    this.searchSubject.pipe(debounceTime(300)).subscribe((term) => {
+      this.searchTerm.set(term);
+      this.page.set(0);
+      this.loadLawyers();
+    });
 
     this.loadLawyers();
   }

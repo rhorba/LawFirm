@@ -16,7 +16,13 @@ import { SearchableSelectComponent } from '../../../shared/searchable-select/sea
 @Component({
   selector: 'app-case-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, CaseTemplatesComponent, SearchableSelectComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    CaseTemplatesComponent,
+    SearchableSelectComponent,
+  ],
   templateUrl: './case-form.component.html',
 })
 export class CaseFormComponent implements OnInit {

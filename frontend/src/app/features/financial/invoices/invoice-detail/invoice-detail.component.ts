@@ -4,7 +4,10 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FinancialService } from '../../../../services/financial.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { InvoiceResponse, InvoiceStatus } from '../../../../core/models/financial.model';
-import { PaymentModalComponent, PaymentModalResult } from '../payment-modal/payment-modal.component';
+import {
+  PaymentModalComponent,
+  PaymentModalResult,
+} from '../payment-modal/payment-modal.component';
 
 @Component({
   selector: 'app-invoice-detail',
@@ -76,22 +79,24 @@ export class InvoiceDetailComponent implements OnInit {
     const inv = this.invoice();
     if (!inv) return;
     this.statusLoading.set(true);
-    this.financialService.updateInvoiceStatus(inv.id, {
-      status: 'PAID',
-      paymentMode: result.paymentMode,
-      paymentDate: result.paymentDate,
-      paymentReference: result.paymentReference,
-    }).subscribe({
-      next: (updated) => {
-        this.invoice.set(updated);
-        this.showPaymentModal.set(false);
-        this.statusLoading.set(false);
-      },
-      error: (err: { error?: { message?: string } }) => {
-        this.error.set(err.error?.message ?? 'Erreur lors du paiement');
-        this.statusLoading.set(false);
-      },
-    });
+    this.financialService
+      .updateInvoiceStatus(inv.id, {
+        status: 'PAID',
+        paymentMode: result.paymentMode,
+        paymentDate: result.paymentDate,
+        paymentReference: result.paymentReference,
+      })
+      .subscribe({
+        next: (updated) => {
+          this.invoice.set(updated);
+          this.showPaymentModal.set(false);
+          this.statusLoading.set(false);
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.error.set(err.error?.message ?? 'Erreur lors du paiement');
+          this.statusLoading.set(false);
+        },
+      });
   }
 
   statusBadgeClass(status: InvoiceStatus): string {

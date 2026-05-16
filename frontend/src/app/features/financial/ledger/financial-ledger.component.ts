@@ -17,7 +17,14 @@ import { TransactionFormComponent } from './transaction-form/transaction-form.co
 @Component({
   selector: 'app-financial-ledger',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, FinancialSummaryCardComponent, TransactionFormComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterLink,
+    RouterLinkActive,
+    FinancialSummaryCardComponent,
+    TransactionFormComponent,
+  ],
   templateUrl: './financial-ledger.component.html',
 })
 export class FinancialLedgerComponent implements OnInit {

@@ -58,7 +58,7 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   get taxAmount(): number {
-    return this.subtotal * this.taxRate() / 100;
+    return (this.subtotal * this.taxRate()) / 100;
   }
 
   get total(): number {

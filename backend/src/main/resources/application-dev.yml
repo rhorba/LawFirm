@@ -25,6 +25,11 @@ cors:
   allowed-headers: "*"
   allow-credentials: true
 
+# Disable actual email sending in dev
+app:
+  mail:
+    enabled: false
+
 logging:
   level:
     com.lawfirm: DEBUG

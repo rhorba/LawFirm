@@ -75,7 +75,9 @@ export class GroupFormComponent implements OnInit {
     });
   }
 
-  private groupByResource(perms: PermissionResponse[]): { resource: string; items: PermissionResponse[] }[] {
+  private groupByResource(
+    perms: PermissionResponse[]
+  ): { resource: string; items: PermissionResponse[] }[] {
     const map = new Map<string, PermissionResponse[]>();
     for (const p of perms) {
       if (!map.has(p.resource)) map.set(p.resource, []);

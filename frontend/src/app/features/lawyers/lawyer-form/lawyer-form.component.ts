@@ -1,8 +1,21 @@
-import { Component, EventEmitter, HostListener, inject, Input, OnInit, Output, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  HostListener,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LawyerService } from '../../../services/lawyer.service';
-import { CreateLawyerRequest, LawyerResponse, UpdateLawyerRequest } from '../../../core/models/lawyer.model';
+import {
+  CreateLawyerRequest,
+  LawyerResponse,
+  UpdateLawyerRequest,
+} from '../../../core/models/lawyer.model';
 
 @Component({
   selector: 'app-lawyer-form',
