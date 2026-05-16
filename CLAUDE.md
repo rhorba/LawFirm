@@ -231,6 +231,49 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 - Health checks for Docker Compose
 - Prometheus-compatible metrics
 
+**Time Tracking & Billing:**
+- Per-case time entry log with hourly rate, duration, and description
+- Billable / billed flags for billing lifecycle
+- Summary widget on case detail (total hours, billable hours, billed amount)
+- TIME_* permissions with RBAC enforcement
+
+**Document Management:**
+- Per-case file upload stored on disk (configurable STORAGE_PATH)
+- 6 categories: CONTRACT, EVIDENCE, COURT_FILING, CORRESPONDENCE, INVOICE, OTHER
+- MIME whitelist enforcement, 20 MB limit, inline preview for PDF/images
+- DOCUMENT_* permissions with RBAC enforcement
+
+**Deadline & Task Management:**
+- Per-case tasks with due date, priority, status, and assignee
+- Threaded comments on each task
+- Upcoming deadlines widget on the dashboard (next 7 days across all cases)
+- TASK_* permissions with RBAC enforcement
+
+**Calendar & Scheduling:**
+- Month-grid calendar view with day-click drill-down
+- Event types: HEARING, APPOINTMENT, REMINDER; task deadlines merged in
+- Case-linked events; per-event form with all fields
+- CALENDAR_* permissions with RBAC enforcement
+
+**Reporting & Analytics:**
+- KPI summary cards (active cases, open invoices, revenue MTD, hours billed)
+- Chart.js charts: case status breakdown, revenue over time, lawyer workload
+- Unpaid invoices table with aging
+- Date presets (this month, last quarter, year-to-date) + custom range
+- REPORT_READ permission
+
+**Communication Management:**
+- Per-case communication timeline (NOTE / EMAIL / CALL / SMS)
+- Log new entries; send real email via JavaMail (disabled in dev profile)
+- Chronological timeline with type badges and author tracking
+- COMMUNICATION_* permissions with RBAC enforcement
+
+**Client Conflict Checking:**
+- Cross-entity conflict search: clients, lawyers, opposing parties
+- Case parties management (add/remove parties with role labels)
+- Conflict resolution workflow: flag → clear with note
+- CONFLICT_* permissions with RBAC enforcement
+
 ### 🎯 Quick Start
 
 **Development Mode:**
@@ -261,22 +304,41 @@ docker-compose -f docker-compose.prod.yml up --build
 - Username: `admin`
 - Password: `admin123`
 
-### 📊 Seeded Permissions (37+)
+### 📊 Seeded Permissions (64)
 
 **User & Role Management (13):**
 USER_READ, USER_CREATE, USER_UPDATE, USER_DELETE, USER_MANAGE, ROLE_READ, ROLE_CREATE, ROLE_UPDATE, ROLE_DELETE, ROLE_MANAGE, PERMISSION_READ, PERMISSION_MANAGE, SYSTEM_MANAGE
 
-**Legal Domain (12):**
-CASE_READ, CASE_CREATE, CASE_UPDATE, CASE_DELETE, LAWYER_READ, LAWYER_CREATE, LAWYER_UPDATE, LAWYER_DELETE, CLIENT_READ, CLIENT_CREATE, CLIENT_UPDATE, CLIENT_DELETE
+**Legal Domain (13):**
+CASE_READ, CASE_CREATE, CASE_UPDATE, CASE_DELETE, LAWYER_READ, LAWYER_CREATE, LAWYER_UPDATE, LAWYER_DELETE, CLIENT_READ, CLIENT_CREATE, CLIENT_UPDATE, CLIENT_DELETE, USER_ROLE_READ
 
 **Financial (11):**
 FINANCIAL_READ, FINANCIAL_CREATE, FINANCIAL_UPDATE, FINANCIAL_DELETE, FINANCIAL_MANAGE, INVOICE_READ, INVOICE_CREATE, INVOICE_UPDATE, INVOICE_DELETE, INVOICE_MANAGE, FINANCIAL_EXPORT
 
-**Other (1+):** USER_ROLE_READ
+**Task Management (5):**
+TASK_READ, TASK_CREATE, TASK_UPDATE, TASK_DELETE, TASK_MANAGE
+
+**Calendar (5):**
+CALENDAR_READ, CALENDAR_CREATE, CALENDAR_UPDATE, CALENDAR_DELETE, CALENDAR_MANAGE
+
+**Conflict Checking (3):**
+CONFLICT_READ, CONFLICT_CREATE, CONFLICT_MANAGE
+
+**Time Tracking (5):**
+TIME_READ, TIME_CREATE, TIME_UPDATE, TIME_DELETE, TIME_MANAGE
+
+**Documents (4):**
+DOCUMENT_READ, DOCUMENT_CREATE, DOCUMENT_DELETE, DOCUMENT_MANAGE
+
+**Reporting (1):**
+REPORT_READ
+
+**Communications (4):**
+COMMUNICATION_READ, COMMUNICATION_CREATE, COMMUNICATION_DELETE, COMMUNICATION_MANAGE
 
 **Role Assignments:**
-- ADMIN: All permissions
-- MODERATOR: USER_* + ROLE_READ + PERMISSION_READ
+- ADMIN: All 64 permissions
+- MODERATOR: USER_*/ROLE_READ/PERMISSION_READ + *_READ + DOCUMENT_CREATE + COMMUNICATION_CREATE
 - USER: USER_READ only
 
 **Seeded test accounts:**
@@ -318,40 +380,50 @@ DEFAULT_LANGUAGE=fr
 LawFirm/
 ├── backend/                           # Spring Boot 3.4 + Java 21
 │   ├── src/main/java/com/lawfirm/
-│   │   ├── domain/                    # Entities & Repositories
-│   │   │   ├── case/                  # Case/Dossier entities
-│   │   │   ├── client/                # Client entities
-│   │   │   ├── lawyer/                # Lawyer entities
-│   │   │   ├── financial/             # Financial ledger entities
-│   │   │   ├── document/              # Document management entities
-│   │   │   ├── task/                  # Task and deadline entities
-│   │   │   └── user/                  # User management entities
-│   │   ├── application/               # DTOs, Mappers, Services
-│   │   │   ├── case/                  # Case management services
-│   │   │   ├── client/                # Client management services
-│   │   │   ├── lawyer/                # Lawyer management services
-│   │   │   ├── financial/             # Financial services
-│   │   │   └── reporting/             # Reporting & analytics
+│   │   ├── domain/                    # Entities & Repositories (flat packages)
+│   │   │   ├── model/                 # All JPA entities: User, Case, Client, Lawyer,
+│   │   │   │                          #   Financial, Invoice, Task, CalendarEvent,
+│   │   │   │                          #   TimeEntry, Document, Communication,
+│   │   │   │                          #   ConflictParty, ConflictCheck, AuditLog, …
+│   │   │   └── repository/            # All Spring Data repos + Specifications
+│   │   ├── application/               # DTOs, Mappers, Services (flat packages)
+│   │   │   ├── dto/request/           # All request DTOs
+│   │   │   ├── dto/response/          # All response DTOs
+│   │   │   ├── mapper/                # All MapStruct mappers
+│   │   │   ├── service/               # AuthService, UserService, CaseService,
+│   │   │   │                          #   ClientService, LawyerService, FinancialTransactionService,
+│   │   │   │                          #   InvoiceService, TaskService, CalendarService,
+│   │   │   │                          #   TimeEntryService, DocumentService (storage on disk),
+│   │   │   │                          #   CommunicationService, ConflictService,
+│   │   │   │                          #   ReportingService, AuditLogService, GroupService, …
+│   │   │   ├── event/                 # AuditEvent
+│   │   │   └── listener/              # AuditEventListener
 │   │   ├── infrastructure/            # Security, Config, Integrations
-│   │   │   ├── security/              # JWT, RBAC, audit
-│   │   │   └── integration/           # Email, SMS, calendar sync
-│   │   └── presentation/              # Controllers, Exception Handling
-│   │       ├── case/                  # Case management endpoints
-│   │       ├── client/                # Client management endpoints
-│   │       ├── lawyer/                # Lawyer management endpoints
-│   │       └── financial/             # Financial endpoints
+│   │   │   ├── security/              # JWT, RBAC, audit filter
+│   │   │   └── integration/           # JavaMail (email send)
+│   │   └── presentation/              # Controllers & Exception Handling (flat packages)
+│   │       ├── controller/            # AuthController, UserController, CaseController,
+│   │       │                          #   ClientController, LawyerController, FinancialTransactionController,
+│   │       │                          #   InvoiceController, TaskController, CalendarController,
+│   │       │                          #   TimeEntryController, DocumentController,
+│   │       │                          #   CommunicationController, ConflictController,
+│   │       │                          #   ReportingController, AuditLogController, GroupController, …
+│   │       └── exception/             # GlobalExceptionHandler + typed exceptions
 │   ├── src/main/resources/
-│   │   ├── db/migration/              # Flyway migrations (V1-V62)
+│   │   ├── db/migration/              # Flyway migrations (V1-V77)
 │   │   └── application*.yml           # Configuration
 │   └── pom.xml
 ├── frontend/                          # Angular 18 Standalone
 │   ├── src/app/
-│   │   ├── core/                      # Services, Guards, Interceptors
+│   │   ├── core/                      # Auth services, guards, interceptors, theme
 │   │   ├── features/                  # Feature modules
 │   │   │   ├── auth/                  # Login, registration ✅
-│   │   │   ├── dashboard/             # Dashboard ✅
+│   │   │   ├── dashboard/             # Dashboard + upcoming-deadlines widget ✅
 │   │   │   ├── layout/                # Layout, Header, Sidebar ✅
-│   │   │   ├── cases/                 # Case management ✅
+│   │   │   ├── cases/                 # Case list, form, 8-tab case detail ✅
+│   │   │   │   └── case-detail/       #   financial-tab, tasks-tab, time-tab,
+│   │   │   │                          #   documents-tab, communications-tab,
+│   │   │   │                          #   parties-tab, (info, lawyers) ✅
 │   │   │   ├── clients/               # Client management ✅
 │   │   │   ├── lawyers/               # Lawyer management ✅
 │   │   │   ├── users/                 # User management ✅
@@ -360,11 +432,10 @@ LawFirm/
 │   │   │   ├── profile/               # User profile ✅
 │   │   │   ├── settings/              # App settings ✅
 │   │   │   ├── financial/             # Financial ledger + invoices ✅
-│   │   │   ├── documents/             # ⏳ Not implemented
-│   │   │   ├── tasks/                 # ⏳ Not implemented
-│   │   │   ├── calendar/              # ⏳ Not implemented
-│   │   │   └── reports/               # ⏳ Not implemented
-│   │   └── services/                  # 16 API integration services
+│   │   │   ├── calendar/              # Month-grid calendar (HEARING/APPT/REMINDER + tasks) ✅
+│   │   │   ├── reports/               # KPI dashboard + Chart.js charts ✅
+│   │   │   └── conflicts/             # Cross-entity conflict search & clear workflow ✅
+│   │   └── services/                  # 21 API integration services
 │   ├── angular.json
 │   ├── tailwind.config.js
 │   └── package.json
