@@ -48,7 +48,7 @@ Full-stack financial management: transactions ledger, invoice management, per-ca
 
 ### ⏳ Phase 4+ — Remaining Features (Not Started)
 
-Time Tracking → Documents → Tasks → Calendar → Reporting → Communication
+Time Tracking → Documents → Tasks → Calendar → Reporting → Communication (all complete — only RTL/Arabic UI and 2FA remain)
 
 ---
 
@@ -71,8 +71,8 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 | Document Management | ❌ | ❌ | Planned |
 | Deadline & Task Management | ✅ | ✅ | Tasks + comments + upcoming dashboard widget |
 | Calendar & Scheduling | ✅ | ✅ | Month grid, HEARING/APPOINTMENT/REMINDER events, task deadlines merged |
-| Reporting & Analytics | ❌ | ❌ | Planned |
-| Communication Management | ❌ | ❌ | Planned |
+| Reporting & Analytics | ✅ | ✅ | KPI summary, Chart.js charts, lawyer workload, unpaid invoices, date presets |
+| Communication Management | ✅ | ✅ | NOTE/EMAIL/CALL/SMS log, send email (JavaMail, disabled in dev), per-case timeline |
 | Client Conflict Checking | ✅ | ✅ | Cross-entity conflict search, case parties, cleared-with-note workflow |
 | RTL / Arabic UI | ❌ | ❌ | Planned |
 | 2FA / Advanced Security | ❌ | ❌ | Planned |
