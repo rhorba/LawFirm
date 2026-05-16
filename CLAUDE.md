@@ -46,9 +46,9 @@ All core legal operations (cases, lawyers, clients, reference data) are producti
 
 Full-stack financial management: transactions ledger, invoice management, per-case financial tab, Excel export, invoice→transaction auto-sync.
 
-### ⏳ Phase 4+ — Remaining Features (Not Started)
+### ✅ Phase 4 — Extended Features (Complete)
 
-Time Tracking → Documents → Tasks → Calendar → Reporting → Communication (all complete — only RTL/Arabic UI and 2FA remain)
+Time Tracking → Documents → Tasks → Calendar → Reporting → Communication — all complete. Only RTL/Arabic UI and 2FA remain.
 
 ---
 
@@ -68,7 +68,7 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 | Financial Infrastructure | ✅ | ✅ | Ledger, invoices, per-case tab, Excel export |
 | Invoice Management | ✅ | ✅ | Full CRUD, PAID sync to transactions |
 | Time Tracking & Billing | ✅ | ✅ | Per-case entries, hourly rate, billable/billed flags, summary widget |
-| Document Management | ❌ | ❌ | Planned |
+| Document Management | ✅ | ✅ | Per-case upload, 6 categories, MIME whitelist, inline preview, 20MB limit |
 | Deadline & Task Management | ✅ | ✅ | Tasks + comments + upcoming dashboard widget |
 | Calendar & Scheduling | ✅ | ✅ | Month grid, HEARING/APPOINTMENT/REMINDER events, task deadlines merged |
 | Reporting & Analytics | ✅ | ✅ | KPI summary, Chart.js charts, lawyer workload, unpaid invoices, date presets |
@@ -79,17 +79,17 @@ Time Tracking → Documents → Tasks → Calendar → Reporting → Communicati
 
 ### 📊 Codebase Metrics (Current)
 
-**Backend:** ~185 Java files
-- 27 domain entities, 22 repositories, 60+ DTOs, 20 MapStruct mappers
-- 21 services, 21 controllers, 9 custom exceptions
-- 72 Flyway migrations (V1–V72)
+**Backend:** ~200 Java files
+- 30 domain entities, 25 repositories, 70+ DTOs, 22 MapStruct mappers
+- 24 services, 24 controllers, 9 custom exceptions
+- 77 Flyway migrations (V1–V77)
 
 **Frontend:** Angular 18 standalone
-- 37 components, 19 API services, 12 TypeScript models
+- 40+ components, 21 API services, 14 TypeScript models
 - 1 auth guard, 2 HTTP interceptors
 - All routes lazy-loaded
 
-**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, group_permissions, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions, invoices, invoice_items, tasks, task_comments, calendar_events, conflict_parties, conflict_checks, time_entries
+**Database tables:** users, user_profiles, roles, permissions, user_roles, groups, user_groups, group_roles, group_permissions, role_permissions, audit_logs, cases, case_types, case_categories, case_statuses, case_type_statuses, case_sequences, case_templates, case_lawyers, lawyers, tribunals, clients, financial_transactions, invoices, invoice_items, tasks, task_comments, calendar_events, conflict_parties, conflict_checks, time_entries, documents, communications
 
 ---
 

@@ -21,7 +21,7 @@ Enterprise-grade legal practice management system designed to streamline case ma
 - Audit Logging (complete request/response tracking, audit trail per entity)
 - JPA Auditing (createdAt, updatedAt, version on all entities)
 - Soft delete support
-- 74 Flyway migrations (V1–V74)
+- 77 Flyway migrations (V1–V77)
 - H2 (dev) and PostgreSQL (prod) support
 - Docker containerization (dev & prod configurations)
 - API documentation (Swagger/OpenAPI at `/swagger-ui.html`)
@@ -106,11 +106,29 @@ Enterprise-grade legal practice management system designed to streamline case ma
 - Documents tab embedded in case detail
 - Permissions: DOCUMENT_READ / DOCUMENT_CREATE / DOCUMENT_DELETE / DOCUMENT_MANAGE
 
+**Reporting & Analytics**
+- KPI summary: total cases, open cases, revenue, unbilled hours/amount, overdue tasks, pending invoices
+- Three Chart.js charts: cases by status (doughnut), cases by month (bar), revenue vs expenses per month (line)
+- Lawyer workload table: total hours, billable hours, billable amount per active lawyer
+- Top 10 unpaid invoices table with invoice number, case, amount, and due date
+- Date range presets: this month / last 3 months / last 12 months / custom from–to
+- Print support (non-chart elements visible in print view)
+- Permissions: REPORT_READ (seeded to ADMIN + MODERATOR)
+
+**Communication Management**
+- Per-case communication timeline with log form and email send form
+- Five communication types: NOTE, EMAIL_SENT, EMAIL_RECEIVED, CALL, SMS
+- Three directions: INBOUND, OUTBOUND, INTERNAL
+- Outbound email via JavaMailSender (disabled by default in dev; set `app.mail.enabled=true` + SMTP config for prod)
+- Timeline shows type/direction badges, recipient email/phone, author, timestamp
+- Communications tab embedded in case detail (9th tab)
+- Permissions: COMMUNICATION_READ / COMMUNICATION_CREATE / COMMUNICATION_DELETE / COMMUNICATION_MANAGE
+
 ---
 
 ### 🗂 Case Detail Tabs
 
-Each case detail page has 8 permission-gated tabs:
+Each case detail page has 9 permission-gated tabs:
 
 | Tab | Permission | Description |
 |-----|-----------|-------------|
@@ -122,6 +140,7 @@ Each case detail page has 8 permission-gated tabs:
 | Parties | CONFLICT_READ | Case parties (opposing counsel, witnesses, etc.) |
 | Temps | TIME_READ | Time entries + billing summary |
 | Documents | DOCUMENT_READ | File upload, preview, download |
+| Communications | COMMUNICATION_READ | Communication log + email sender |
 
 ---
 
@@ -129,8 +148,6 @@ Each case detail page has 8 permission-gated tabs:
 
 | Feature | Backend | Frontend |
 |---------|---------|----------|
-| Reporting & Analytics | ❌ | ❌ |
-| Communication Management (email, SMS) | ❌ | ❌ |
 | RTL / Arabic UI | ❌ | ❌ |
 | 2FA / Advanced Security | ❌ | ❌ |
 | Client Portal | ❌ | ❌ |
@@ -220,15 +237,15 @@ docker-compose -f docker-compose.prod.yml up --build
 LawFirm/
 ├── backend/
 │   ├── src/main/java/com/lawfirm/
-│   │   ├── domain/model/              # 28 JPA entities
-│   │   ├── domain/repository/         # 23 repositories
-│   │   ├── application/dto/           # 60+ DTOs (request + response)
-│   │   ├── application/mapper/        # 20 MapStruct mappers
-│   │   ├── application/service/       # 22 services
+│   │   ├── domain/model/              # 30 JPA entities
+│   │   ├── domain/repository/         # 25 repositories
+│   │   ├── application/dto/           # 70+ DTOs (request + response)
+│   │   ├── application/mapper/        # 22 MapStruct mappers
+│   │   ├── application/service/       # 24 services
 │   │   ├── infrastructure/security/   # JWT, RBAC, filters
-│   │   └── presentation/controller/  # 22 REST controllers
+│   │   └── presentation/controller/  # 24 REST controllers
 │   ├── src/main/resources/
-│   │   ├── db/migration/              # 74 Flyway migrations (V1–V74)
+│   │   ├── db/migration/              # 77 Flyway migrations (V1–V77)
 │   │   └── application*.yml
 │   └── pom.xml
 │
@@ -243,7 +260,7 @@ LawFirm/
 │   │   │   ├── auth/                  # Login, Register ✅
 │   │   │   ├── dashboard/             # KPI dashboard ✅
 │   │   │   ├── layout/                # Layout, Header, Sidebar ✅
-│   │   │   ├── cases/                 # Full case management + 8-tab detail ✅
+│   │   │   ├── cases/                 # Full case management + 9-tab detail ✅
 │   │   │   ├── lawyers/               # Lawyer management ✅
 │   │   │   ├── clients/               # Client management ✅
 │   │   │   ├── users/                 # User management ✅
@@ -256,8 +273,8 @@ LawFirm/
 │   │   │   ├── conflicts/             # Conflict check page ✅
 │   │   │   ├── documents/             # ⏳ (per-case tab done, standalone page planned)
 │   │   │   ├── tasks/                 # ⏳ (per-case tab done, standalone page planned)
-│   │   │   └── reports/               # ⏳ Not implemented
-│   │   └── services/                  # 19 API integration services
+│   │   │   └── reports/               # Reporting & Analytics ✅
+│   │   └── services/                  # 21 API integration services
 │   └── package.json
 │
 ├── docker-compose.dev.yml
@@ -403,6 +420,25 @@ GET    /api/documents/:id/download       Download file (add ?inline=true for pre
 DELETE /api/documents/:id                Delete document + file
 ```
 
+### Reporting & Analytics
+```
+GET    /api/reports/summary              KPI summary (total cases, revenue, unbilled, alerts)
+GET    /api/reports/cases-by-status      Cases grouped by status (chart data)
+GET    /api/reports/cases-by-month       Cases opened per month (chart data)
+GET    /api/reports/financial-by-month   Revenue vs expenses per month (chart data)
+GET    /api/reports/lawyer-workload      Hours + billable amounts per lawyer
+GET    /api/reports/unpaid-invoices      Top 10 unpaid invoices by amount
+```
+All report endpoints accept optional `?from=YYYY-MM-DD&to=YYYY-MM-DD` query params.
+
+### Communications
+```
+GET    /api/cases/:caseId/communications            List communications for a case
+POST   /api/cases/:caseId/communications            Log a communication (NOTE, CALL, EMAIL, SMS)
+POST   /api/cases/:caseId/communications/send-email Send email and auto-log as EMAIL_SENT
+DELETE /api/communications/:id                      Delete a communication entry
+```
+
 ### Audit, Roles & Permissions
 ```
 GET    /api/audit-logs              List audit logs (paginated, filtered)
@@ -427,6 +463,8 @@ GET    /api/permissions             List all permissions
 | Calendar | CALENDAR_READ, CALENDAR_CREATE, CALENDAR_UPDATE, CALENDAR_DELETE |
 | Conflicts | CONFLICT_READ, CONFLICT_CREATE, CONFLICT_MANAGE |
 | Documents | DOCUMENT_READ, DOCUMENT_CREATE, DOCUMENT_DELETE, DOCUMENT_MANAGE |
+| Reporting | REPORT_READ |
+| Communications | COMMUNICATION_READ, COMMUNICATION_CREATE, COMMUNICATION_DELETE, COMMUNICATION_MANAGE |
 
 **Role defaults:**
 - **ADMIN** — all permissions
@@ -450,6 +488,11 @@ GET    /api/permissions             List all permissions
 | `CORS_ALLOWED_ORIGINS` | Prod only | — | Allowed CORS origins |
 | `APP_STORAGE_DOCUMENTS_PATH` | No | `~/lawfirm-documents` | Document file storage path |
 | `APP_STORAGE_MAX_FILE_SIZE_MB` | No | `20` | Max upload size in MB |
+| `APP_MAIL_ENABLED` | No | `false` | Enable outbound email sending |
+| `SPRING_MAIL_HOST` | Prod only | — | SMTP host (e.g. `smtp.gmail.com`) |
+| `SPRING_MAIL_PORT` | Prod only | `587` | SMTP port |
+| `SPRING_MAIL_USERNAME` | Prod only | — | SMTP username / from address |
+| `SPRING_MAIL_PASSWORD` | Prod only | — | SMTP password or app password |
 
 ---
 
