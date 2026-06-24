@@ -32,6 +32,6 @@ public interface CaseRepository extends JpaRepository<Case, Long>, JpaSpecificat
 
     @Query("SELECT c FROM Case c WHERE c.deletedAt IS NULL AND " +
            "(LOWER(c.fullCaseNumber) LIKE LOWER(CONCAT('%',:name,'%')) OR " +
-           " LOWER(c.notes)          LIKE LOWER(CONCAT('%',:name,'%')))")
+           " LOWER(c.caseDescription) LIKE LOWER(CONCAT('%',:name,'%')))")
     List<Case> searchByName(@Param("name") String name);
 }

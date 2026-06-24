@@ -32,17 +32,17 @@ describe('TaskService', () => {
     req.flush([]);
   });
 
-  it('getTaskById should GET /tasks/:id', () => {
-    service.getTaskById(1).subscribe();
+  it('getById should GET /tasks/:id', () => {
+    service.getById(1).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/tasks/1`);
     expect(req.request.method).toBe('GET');
     req.flush({ id: 1, title: 'Test Task' });
   });
 
-  it('createTask should POST to /cases/:id/tasks', () => {
+  it('create should POST to /cases/:id/tasks', () => {
     const payload = { title: 'New Task', dueDate: '2026-12-01', priority: 'HIGH' };
-    service.createTask(10, payload as any).subscribe();
+    service.create(10, payload as any).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/cases/10/tasks`);
     expect(req.request.method).toBe('POST');
@@ -50,25 +50,25 @@ describe('TaskService', () => {
     req.flush({ id: 2, ...payload });
   });
 
-  it('updateTask should PUT to /tasks/:id', () => {
+  it('update should PUT to /tasks/:id', () => {
     const payload = { title: 'Updated Task', status: 'IN_PROGRESS' };
-    service.updateTask(1, payload as any).subscribe();
+    service.update(1, payload as any).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/tasks/1`);
     expect(req.request.method).toBe('PUT');
     req.flush({ id: 1, ...payload });
   });
 
-  it('deleteTask should DELETE /tasks/:id', () => {
-    service.deleteTask(1).subscribe();
+  it('delete should DELETE /tasks/:id', () => {
+    service.delete(1).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/tasks/1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
 
-  it('getUpcomingTasks should GET /tasks/upcoming with days param', () => {
-    service.getUpcomingTasks(7).subscribe();
+  it('getUpcoming should GET /tasks/upcoming with days param', () => {
+    service.getUpcoming(7).subscribe();
 
     const req = httpMock.expectOne((r) => r.url.includes('/tasks/upcoming'));
     expect(req.request.params.get('days')).toBe('7');

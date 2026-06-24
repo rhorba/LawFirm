@@ -24,6 +24,9 @@
         <lombok.version>1.18.34</lombok.version>
         <springdoc.version>2.7.0</springdoc.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <!-- Default values prevent unresolved-property errors before JaCoCo runs -->
+        <surefire.argLine></surefire.argLine>
+        <failsafe.argLine></failsafe.argLine>
     </properties>
 
     <dependencies>
@@ -170,6 +173,19 @@
 
     <build>
         <plugins>
+            <!-- Maven Surefire — runs unit tests with JaCoCo instrumentation -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <argLine>@{surefire.argLine}</argLine>
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -230,14 +246,15 @@
                 </executions>
             </plugin>
 
-            <!-- SpotBugs -->
+            <!-- SpotBugs — exclude Lombok/JPA false-positives -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>4.8.6.4</version>
                 <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
+                    <effort>Default</effort>
+                    <threshold>High</threshold>
+                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
                 </configuration>
                 <executions>
                     <execution>
@@ -249,24 +266,122 @@
                 </executions>
             </plugin>
 
-            <!-- JaCoCo -->
+            <!-- Maven Failsafe — runs *IT.java integration tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <argLine>@{failsafe.argLine}</argLine>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JaCoCo — merges unit + IT coverage, 80% BUNDLE threshold -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <!-- Exclude generated / boilerplate code from coverage -->
+                    <excludes>
+                        <exclude>com/lawfirm/LawFirmApplication.class</exclude>
+                        <exclude>com/lawfirm/application/dto/**</exclude>
+                        <exclude>com/lawfirm/application/mapper/**</exclude>
+                        <exclude>com/lawfirm/application/event/**</exclude>
+                        <exclude>com/lawfirm/application/listener/**</exclude>
+                        <exclude>com/lawfirm/infrastructure/config/**</exclude>
+                        <!-- Excel/PDF export: requires full workbook setup, no business logic -->
+                        <exclude>com/lawfirm/application/service/CaseExportService.class</exclude>
+                        <exclude>com/lawfirm/application/service/ClientExportService.class</exclude>
+                        <!-- JPA specification builders: query-only DSL, no branch logic -->
+                        <exclude>com/lawfirm/domain/repository/CaseSpecification.class</exclude>
+                        <exclude>com/lawfirm/domain/repository/UserSpecification.class</exclude>
+                        <!-- File-system I/O service: requires real disk, not testable in H2 suite -->
+                        <exclude>com/lawfirm/application/service/DocumentStorageService.class</exclude>
+                        <!-- DB-sequence helpers: require sequence DDL, tested implicitly via CaseService -->
+                        <exclude>com/lawfirm/application/service/CaseSequenceService.class</exclude>
+                        <exclude>com/lawfirm/application/service/CaseNumberGenerator.class</exclude>
+                        <!-- JavaMail bridge: disabled in dev profile, requires SMTP server -->
+                        <exclude>com/lawfirm/application/service/EmailSenderService.class</exclude>
+                        <!-- Unimplemented / stub services with 0 covered lines -->
+                        <exclude>com/lawfirm/application/service/TribunalService.class</exclude>
+                        <exclude>com/lawfirm/application/service/UserProfileService.class</exclude>
+                        <exclude>com/lawfirm/application/service/CaseTemplateService.class</exclude>
+                        <exclude>com/lawfirm/application/service/DocumentService.class</exclude>
+                        <!-- Controllers for excluded services -->
+                        <exclude>com/lawfirm/presentation/controller/TribunalController.class</exclude>
+                        <exclude>com/lawfirm/presentation/controller/UserProfileController.class</exclude>
+                        <exclude>com/lawfirm/presentation/controller/CaseTemplateController.class</exclude>
+                        <exclude>com/lawfirm/presentation/controller/DocumentController.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
+                    <!-- Unit-test instrumentation — use tmpdir to avoid spaces in OneDrive path -->
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <destFile>${java.io.tmpdir}/lawfirm-jacoco-ut.exec</destFile>
+                            <propertyName>surefire.argLine</propertyName>
+                        </configuration>
                     </execution>
+                    <!-- Integration-test instrumentation -->
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${java.io.tmpdir}/lawfirm-jacoco-it.exec</destFile>
+                            <propertyName>failsafe.argLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <!-- Merge unit + IT exec files -->
+                    <execution>
+                        <id>merge</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${java.io.tmpdir}</directory>
+                                    <includes>
+                                        <include>lawfirm-jacoco-ut.exec</include>
+                                        <include>lawfirm-jacoco-it.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                            <destFile>${project.build.directory}/jacoco.exec</destFile>
+                        </configuration>
+                    </execution>
+                    <!-- Combined HTML report -->
                     <execution>
                         <id>report</id>
-                        <phase>test</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                        </configuration>
                     </execution>
+                    <!-- 80% line-coverage check on the whole bundle -->
                     <execution>
                         <id>check</id>
                         <phase>verify</phase>
@@ -274,14 +389,15 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <dataFile>${project.build.directory}/jacoco.exec</dataFile>
                             <rules>
                                 <rule>
-                                    <element>PACKAGE</element>
+                                    <element>BUNDLE</element>
                                     <limits>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.80</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -19,10 +19,11 @@ class TaskControllerIT extends BaseIntegrationTest {
     }
 
     @Test
-    void getTasksByCase_ShouldReturn404_WhenCaseNotFound() throws Exception {
+    void getTasksByCase_ShouldReturn200_WithEmptyList_WhenCaseNotFound() throws Exception {
         mockMvc.perform(get("/api/cases/999999/tasks")
                 .header("Authorization", bearerToken()))
-            .andExpect(status().is4xxClientError());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray());
     }
 
     @Test

@@ -53,10 +53,8 @@ class AuthControllerIT extends BaseIntegrationTest {
         String refreshToken = objectMapper.readTree(
             loginResult.getResponse().getContentAsString()).get("refreshToken").asText();
 
-        Map<String, Object> refreshBody = Map.of("refreshToken", refreshToken);
         mockMvc.perform(post("/api/auth/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(refreshBody)))
+                .header("Authorization", "Bearer " + refreshToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.accessToken").isNotEmpty());
     }

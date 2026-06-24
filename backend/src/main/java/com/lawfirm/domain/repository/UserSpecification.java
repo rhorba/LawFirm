@@ -25,7 +25,8 @@ public final class UserSpecification {
             return null;
         }
         return (root, query, cb) -> {
-            var rolesJoin = root.join("roles", JoinType.INNER);
+            var groupsJoin = root.join("groups", JoinType.INNER);
+            var rolesJoin = groupsJoin.join("roles", JoinType.INNER);
             return cb.equal(rolesJoin.get("name"), roleName);
         };
     }

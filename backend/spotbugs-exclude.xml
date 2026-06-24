@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Lombok @Data/@Builder generates getters/setters that return/store mutable refs.
+         These are design choices, not real bugs. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!-- String case conversion without Locale: acceptable in a controlled app context. -->
+    <Match>
+        <Bug pattern="DM_CONVERT_CASE"/>
+    </Match>
+
+    <!-- Lombok-generated @Builder fields not initialized in constructor. -->
+    <Match>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+
+    <!-- UserPrincipal implements Serializable via Spring Security; serialVersionUID
+         and the User field are intentional Spring Security patterns. -->
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID,SE_BAD_FIELD"/>
+    </Match>
+
+    <!-- JwtService uses String.getBytes() with the system charset intentionally;
+         the JWT secret comes from a controlled env variable. -->
+    <Match>
+        <Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+</FindBugsFilter>

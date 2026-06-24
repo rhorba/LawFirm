@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +32,7 @@ public class CaseCategoryController {
     private final CaseCategoryMapper caseCategoryMapper;
 
     @GetMapping
+    @Transactional(readOnly = true)
     @Operation(summary = "Search case categories (supports ?search=&caseTypeCode=&page=&size=)")
     public ResponseEntity<Page<CaseCategoryResponse>> search(
             @RequestParam(required = false) String search,

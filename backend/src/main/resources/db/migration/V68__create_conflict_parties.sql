@@ -12,4 +12,4 @@ CREATE TABLE conflict_parties (
 );
 
 CREATE INDEX idx_conflict_parties_case_id ON conflict_parties(case_id);
-CREATE INDEX idx_conflict_parties_name    ON conflict_parties(LOWER(name));
+CREATE INDEX idx_conflict_parties_name    ON conflict_parties(name);

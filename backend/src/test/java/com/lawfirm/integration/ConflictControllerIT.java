@@ -19,7 +19,7 @@ class ConflictControllerIT extends BaseIntegrationTest {
                 .header("Authorization", bearerToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
-            .andExpect(status().isOk())
+            .andExpect(status().isCreated())
             .andExpect(jsonPath("$.searchName").value("NonExistentPartyXYZ12345"))
             .andExpect(jsonPath("$.hasConflict").value(false))
             .andExpect(jsonPath("$.matches").isArray());
@@ -27,7 +27,7 @@ class ConflictControllerIT extends BaseIntegrationTest {
 
     @Test
     void listChecks_ShouldReturn200() throws Exception {
-        mockMvc.perform(get("/api/conflicts/checks")
+        mockMvc.perform(get("/api/conflicts/history")
                 .header("Authorization", bearerToken()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray());

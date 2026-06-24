@@ -80,7 +80,7 @@ class ClientControllerIT extends BaseIntegrationTest {
     }
 
     @Test
-    void deactivateClient_ShouldReturn200_WhenExists() throws Exception {
+    void deactivateClient_ShouldReturn204_WhenExists() throws Exception {
         long ts = System.currentTimeMillis();
         Map<String, Object> body = Map.of(
             "clientType", "INDIVIDUAL",
@@ -99,8 +99,8 @@ class ClientControllerIT extends BaseIntegrationTest {
 
         Long id = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asLong();
 
-        mockMvc.perform(patch("/api/clients/" + id + "/deactivate")
+        mockMvc.perform(delete("/api/clients/" + id)
                 .header("Authorization", bearerToken()))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 }

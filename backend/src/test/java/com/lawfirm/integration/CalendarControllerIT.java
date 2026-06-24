@@ -32,7 +32,7 @@ class CalendarControllerIT extends BaseIntegrationTest {
             "allDay", false
         );
 
-        mockMvc.perform(post("/api/calendar/events")
+        mockMvc.perform(post("/api/calendar")
                 .header("Authorization", bearerToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
@@ -43,7 +43,7 @@ class CalendarControllerIT extends BaseIntegrationTest {
 
     @Test
     void getEventById_ShouldReturn404_WhenNotFound() throws Exception {
-        mockMvc.perform(get("/api/calendar/events/999999")
+        mockMvc.perform(get("/api/calendar/999999")
                 .header("Authorization", bearerToken()))
             .andExpect(status().isNotFound());
     }
@@ -57,7 +57,7 @@ class CalendarControllerIT extends BaseIntegrationTest {
             "allDay", false
         );
 
-        var createResult = mockMvc.perform(post("/api/calendar/events")
+        var createResult = mockMvc.perform(post("/api/calendar")
                 .header("Authorization", bearerToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body)))
@@ -65,7 +65,7 @@ class CalendarControllerIT extends BaseIntegrationTest {
 
         Long id = objectMapper.readTree(createResult.getResponse().getContentAsString()).get("id").asLong();
 
-        mockMvc.perform(delete("/api/calendar/events/" + id)
+        mockMvc.perform(delete("/api/calendar/" + id)
                 .header("Authorization", bearerToken()))
             .andExpect(status().isNoContent());
     }

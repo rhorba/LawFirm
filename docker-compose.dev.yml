@@ -13,8 +13,9 @@ services:
       - JWT_SECRET=${JWT_SECRET:-dev-secret-key-change-in-production-min-256-bits}
     volumes:
       - ./backend:/app
+      - backend_target:/app/target
       - ~/.m2:/root/.m2
-    command: mvn clean spring-boot:run
+    command: mvn spring-boot:run
 
   frontend:
     build:
@@ -26,3 +27,6 @@ services:
       - ./frontend:/app
       - /app/node_modules
     command: pnpm dev
+
+volumes:
+  backend_target:

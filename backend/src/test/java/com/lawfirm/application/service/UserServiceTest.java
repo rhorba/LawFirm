@@ -236,4 +236,91 @@ class UserServiceTest {
         // Assert
         assertThat(result.getContent()).hasSize(1);
     }
+
+    @Test
+    void getUserByUsername_Success() {
+        when(userRepository.findByUsernameAndDeletedAtIsNull("testuser")).thenReturn(Optional.of(testUser));
+        when(userMapper.toResponse(testUser)).thenReturn(testUserResponse);
+
+        UserResponse result = userService.getUserByUsername("testuser");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getUsername()).isEqualTo("testuser");
+    }
+
+    @Test
+    void getUserByUsername_NotFound_ThrowsException() {
+        when(userRepository.findByUsernameAndDeletedAtIsNull("unknown")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.getUserByUsername("unknown"))
+            .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void createUser_DuplicateEmail_ThrowsException() {
+        when(userRepository.existsByUsernameAndDeletedAtIsNull(anyString())).thenReturn(false);
+        when(userRepository.existsByEmailAndDeletedAtIsNull(anyString())).thenReturn(true);
+
+        assertThatThrownBy(() -> userService.createUser(createRequest))
+            .isInstanceOf(DuplicateResourceException.class)
+            .hasMessageContaining("Email already exists");
+
+        verify(userRepository, never()).save(any());
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void searchUsers_WithSearch_AppliesFilter() {
+        UserSearchRequest searchRequest = UserSearchRequest.builder()
+            .search("admin")
+            .role("ADMIN")
+            .enabled(true)
+            .build();
+        Page<User> page = new PageImpl<>(List.of(testUser));
+        when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(userMapper.toResponse(testUser)).thenReturn(testUserResponse);
+
+        Page<UserResponse> result = userService.searchUsers(searchRequest, Pageable.unpaged());
+
+        assertThat(result.getContent()).hasSize(1);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void searchUsers_ShowDeleted_AppliesDeletedFilter() {
+        UserSearchRequest searchRequest = UserSearchRequest.builder()
+            .showDeleted(true)
+            .build();
+        Page<User> page = new PageImpl<>(List.of(testUser));
+        when(userRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+        when(userMapper.toResponse(testUser)).thenReturn(testUserResponse);
+
+        Page<UserResponse> result = userService.searchUsers(searchRequest, Pageable.unpaged());
+
+        assertThat(result.getContent()).hasSize(1);
+    }
+
+    @Test
+    void bulkSoftDelete_Success() {
+        when(userRepository.countByDeletedAtIsNullAndGroupsRolesName("ADMIN")).thenReturn(2L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        when(userRepository.softDeleteByIds(anyList(), any(LocalDateTime.class))).thenReturn(1);
+
+        int count = userService.bulkSoftDelete(List.of(1L, 2L));
+
+        assertThat(count).isEqualTo(1);
+    }
+
+    @Test
+    void bulkUpdateStatus_Success() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+        when(userRepository.save(testUser)).thenReturn(testUser);
+
+        int count = userService.bulkUpdateStatus(List.of(1L, 2L), false);
+
+        assertThat(count).isEqualTo(1);
+        assertThat(testUser.getEnabled()).isFalse();
+    }
 }

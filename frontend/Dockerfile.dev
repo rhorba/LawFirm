@@ -1,7 +1,10 @@
-FROM node:20-alpine
+FROM node:22-alpine
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Allow build scripts globally (required for esbuild, lmdb, etc. in pnpm 9+)
+RUN pnpm config set dangerouslyAllowAllBuilds true
 
 # Copy package files
 COPY package.json ./

@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ReportService } from './report.service';
-import { environment } from '../../environments/environment';
 
 describe('ReportService', () => {
   let service: ReportService;
@@ -57,10 +56,10 @@ describe('ReportService', () => {
     req.flush([]);
   });
 
-  it('getTopUnpaidInvoices should GET /reports/top-unpaid-invoices', () => {
-    service.getTopUnpaidInvoices().subscribe();
+  it('getUnpaidInvoices should GET /reports/unpaid-invoices', () => {
+    service.getUnpaidInvoices().subscribe();
 
-    const req = httpMock.expectOne((r) => r.url.includes('/reports/top-unpaid-invoices'));
+    const req = httpMock.expectOne((r) => r.url.includes('/reports') && r.url.includes('unpaid'));
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });

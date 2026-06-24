@@ -55,7 +55,7 @@ class ReportingControllerIT extends BaseIntegrationTest {
 
     @Test
     void getTopUnpaidInvoices_ShouldReturn200() throws Exception {
-        mockMvc.perform(get("/api/reports/top-unpaid-invoices")
+        mockMvc.perform(get("/api/reports/unpaid-invoices")
                 .header("Authorization", bearerToken()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray());

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:lawfirm;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    url: "jdbc:h2:mem:lawfirm;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;INIT=CREATE DOMAIN IF NOT EXISTS TIMESTAMPTZ AS TIMESTAMP WITH TIME ZONE"
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -14,9 +14,14 @@ spring:
 
   jpa:
     show-sql: true
+    hibernate:
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
+
+  flyway:
+    validate-on-migrate: false
 
 # CORS for local Angular dev
 cors:

@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { FinancialService } from './financial.service';
-import { environment } from '../../environments/environment';
 
 describe('FinancialService', () => {
   let service: FinancialService;
@@ -24,37 +23,54 @@ describe('FinancialService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getTransactions should GET /financial/transactions', () => {
-    service.getTransactions({}).subscribe();
+  it('getTransactions should GET /financial/transactions with filter and paging', () => {
+    service.getTransactions({}, { page: 0, size: 20 }).subscribe();
 
-    const req = httpMock.expectOne((r) => r.url.includes('/financial/transactions'));
+    const req = httpMock.expectOne((r) => r.url.includes('/financial/transactions') && !r.url.includes('export'));
     expect(req.request.method).toBe('GET');
     req.flush({ content: [], totalElements: 0 });
   });
 
-  it('getSummaryByCase should GET /cases/:id/financial/summary', () => {
-    service.getSummaryByCase(10).subscribe();
+  it('getTransactionsByCase should GET /financial/cases/:id/transactions', () => {
+    service.getTransactionsByCase(10).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/cases/10/financial/summary`);
+    const req = httpMock.expectOne((r) => r.url.includes('/cases/10/transactions'));
     expect(req.request.method).toBe('GET');
-    req.flush({ totalRevenue: 5000, totalExpenses: 1000, netBalance: 4000, transactionCount: 3 });
+    req.flush([]);
   });
 
   it('createTransaction should POST to /financial/transactions', () => {
     const payload = { caseId: 10, direction: 'REVENUE', amount: 5000, operationType: 'FEES', paymentDate: '2026-05-01' };
     service.createTransaction(payload as any).subscribe();
 
-    const req = httpMock.expectOne(`${environment.apiUrl}/financial/transactions`);
+    const req = httpMock.expectOne((r) => r.url.includes('/financial/transactions') && !r.url.includes('export'));
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
     req.flush({ id: 1, ...payload });
   });
 
-  it('exportTransactions should GET blob from /financial/transactions/export', () => {
-    service.exportTransactions({}).subscribe();
+  it('exportExcel should GET blob from /financial/transactions/export/excel', () => {
+    service.exportExcel({}).subscribe();
 
-    const req = httpMock.expectOne((r) => r.url.includes('/financial/transactions/export'));
+    const req = httpMock.expectOne((r) => r.url.includes('/financial/transactions/export/excel'));
     expect(req.request.responseType).toBe('blob');
     req.flush(new Blob());
+  });
+
+  it('getInvoices should GET /financial/invoices with pagination', () => {
+    service.getInvoices({ page: 0, size: 10 }).subscribe();
+
+    const req = httpMock.expectOne((r) => r.url.includes('/invoices'));
+    expect(req.request.method).toBe('GET');
+    req.flush({ content: [], totalElements: 0 });
+  });
+
+  it('createInvoice should POST to /financial/invoices', () => {
+    const payload = { caseId: 1, clientId: 2, issueDate: '2026-05-01', dueDate: '2026-06-01', items: [] };
+    service.createInvoice(payload as any).subscribe();
+
+    const req = httpMock.expectOne((r) => r.url.includes('/invoices'));
+    expect(req.request.method).toBe('POST');
+    req.flush({ id: 1, ...payload });
   });
 });

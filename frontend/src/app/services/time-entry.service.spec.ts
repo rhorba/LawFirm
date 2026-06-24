@@ -24,8 +24,8 @@ describe('TimeEntryService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getEntriesByCase should GET /cases/:id/time-entries', () => {
-    service.getEntriesByCase(10).subscribe();
+  it('getByCase should GET /cases/:id/time-entries', () => {
+    service.getByCase(10).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/cases/10/time-entries`);
     expect(req.request.method).toBe('GET');
@@ -40,9 +40,9 @@ describe('TimeEntryService', () => {
     req.flush({ totalHours: 10, billableHours: 8, billedHours: 3 });
   });
 
-  it('createEntry should POST to /cases/:id/time-entries', () => {
+  it('create should POST to /cases/:id/time-entries', () => {
     const payload = { lawyerId: 1, hours: 2.5, hourlyRate: 500, billable: true, entryDate: '2026-05-01' };
-    service.createEntry(10, payload as any).subscribe();
+    service.create(10, payload as any).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/cases/10/time-entries`);
     expect(req.request.method).toBe('POST');
@@ -50,19 +50,19 @@ describe('TimeEntryService', () => {
     req.flush({ id: 1, ...payload });
   });
 
-  it('deleteEntry should DELETE /time-entries/:id', () => {
-    service.deleteEntry(1).subscribe();
+  it('delete should DELETE /time-entries/:id', () => {
+    service.delete(1).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/time-entries/1`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
   });
 
-  it('markAsBilled should PATCH /time-entries/:id/billed', () => {
-    service.markAsBilled(1, null).subscribe();
+  it('markAsBilled should POST /time-entries/:id/bill', () => {
+    service.markAsBilled(1, undefined).subscribe();
 
-    const req = httpMock.expectOne((r) => r.url.includes('/time-entries/1/billed'));
-    expect(req.request.method).toBe('PATCH');
+    const req = httpMock.expectOne('/api/time-entries/1/bill');
+    expect(req.request.method).toBe('POST');
     req.flush({ id: 1, billed: true });
   });
 });

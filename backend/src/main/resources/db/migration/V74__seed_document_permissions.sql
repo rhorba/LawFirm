@@ -1,9 +1,9 @@
-INSERT INTO permissions (name, description, created_at, updated_at, version)
+INSERT INTO permissions (name, description, resource, action, created_at, updated_at, version)
 VALUES
-    ('DOCUMENT_READ',   'View case documents',               NOW(), NOW(), 0),
-    ('DOCUMENT_CREATE', 'Upload documents to cases',         NOW(), NOW(), 0),
-    ('DOCUMENT_DELETE', 'Delete own documents',              NOW(), NOW(), 0),
-    ('DOCUMENT_MANAGE', 'Manage all documents (any user)',   NOW(), NOW(), 0);
+    ('DOCUMENT_READ',   'View case documents',               'DOCUMENT', 'READ',   NOW(), NOW(), 0),
+    ('DOCUMENT_CREATE', 'Upload documents to cases',         'DOCUMENT', 'CREATE', NOW(), NOW(), 0),
+    ('DOCUMENT_DELETE', 'Delete own documents',              'DOCUMENT', 'DELETE', NOW(), NOW(), 0),
+    ('DOCUMENT_MANAGE', 'Manage all documents (any user)',   'DOCUMENT', 'MANAGE', NOW(), NOW(), 0);
 
 -- ADMIN gets all four
 INSERT INTO role_permissions (role_id, permission_id)
